@@ -1,0 +1,40 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@inertiajs/vue3": "^2.0.0",
+        "@tailwindcss/forms": "^0.5.3",
+        "@tailwindcss/vite": "^4.0.0",
+        "@vitejs/plugin-vue": "^6.0.0",
+        "autoprefixer": "^10.4.12",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "postcss": "^8.4.31",
+        "tailwindcss": "^3.2.1",
+        "vite": "^7.0.7",
+        "vue": "^3.4.0"
+    },
+    "dependencies": {
+        "@alpinejs/persist": "^3.15.8",
+        "@fullcalendar/core": "^6.1.20",
+        "@fullcalendar/daygrid": "^6.1.20",
+        "@fullcalendar/interaction": "^6.1.20",
+        "@fullcalendar/list": "^6.1.20",
+        "@fullcalendar/timegrid": "^6.1.20",
+        "@fullcalendar/vue3": "^6.1.20",
+        "@headlessui/vue": "^1.7.23",
+        "@heroicons/vue": "^2.2.0",
+        "@vueuse/core": "^14.2.1",
+        "alpinejs": "^3.15.8",
+        "apexcharts": "^5.10.4",
+        "chart.js": "^4.5.1",
+        "vue-toastification": "^2.0.0-rc.5",
+        "vue3-apexcharts": "^1.11.1"
+    }
+}
