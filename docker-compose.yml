@@ -1,5 +1,20 @@
 services:
 
+  # ── Inicializador de volumen public/ ────────
+  init-public:
+    image: dentaris_app
+    container_name: dentaris_init_public
+    entrypoint: sh -c "cp -r /var/www/html/public_init/* /var/www/html/public/ && echo '✅ public/ initialized' && [ -f /var/www/html/public/index.php ]"
+    volumes:
+      - app_public:/var/www/html/public
+    healthcheck:
+      test: [ "CMD", "test", "-f", "/var/www/html/public/index.php" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dentaris
+
   # ── PHP-FPM ────────────────────────────────
   app:
     build:
@@ -10,6 +25,8 @@ services:
     restart: unless-stopped
     entrypoint: ["entrypoint.sh"]
     depends_on:
+      init-public:
+        condition: service_healthy
       mysql:
         condition: service_healthy
       redis:
@@ -53,6 +70,8 @@ services:
       - "443:443"
     depends_on:
       app:
+        condition: service_healthy
+      init-public:
         condition: service_healthy
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
