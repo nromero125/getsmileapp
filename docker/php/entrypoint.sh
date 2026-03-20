@@ -1,6 +1,13 @@
 #!/bin/sh
 set -e
 
+echo "📁 Preparando directorios..."
+mkdir -p storage/framework/{cache,sessions,views} \
+         storage/logs \
+         bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+
 echo "⏳ Esperando MySQL..."
 until php artisan db:monitor --max=1 2>/dev/null; do
   sleep 2
