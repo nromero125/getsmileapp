@@ -1,10 +1,7 @@
-# ──────────────────────────────────────────────
-# Stage 1: PHP con extensiones + composer install
-# ──────────────────────────────────────────────
-FROM php:8.3-fpm-alpine AS php-base
+FROM php:8.3-fpm-alpine
 
 RUN apk add --no-cache \
-    bash curl git unzip \
+    bash curl git unzip nodejs npm \
     libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev \
     oniguruma-dev libxml2-dev icu-dev zip libzip-dev supervisor \
     autoconf g++ make linux-headers
@@ -20,58 +17,21 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Composer dependencies
 COPY composer.json composer.lock ./
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
-    --no-dev \
-    --no-scripts \
-    --no-autoloader \
-    --prefer-dist \
-    --no-interaction \
-    --ignore-platform-reqs
+    --no-dev --no-scripts --no-autoloader \
+    --prefer-dist --no-interaction --ignore-platform-reqs
 
+# Copy app
 COPY . .
-RUN mkdir -p \
-    bootstrap/cache \
-    storage/framework/cache \
-    storage/framework/sessions \
-    storage/framework/views \
-    storage/logs \
+
+RUN mkdir -p bootstrap/cache storage/framework/{cache,sessions,views} storage/logs \
     && chmod -R 775 bootstrap/cache storage \
     && COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-dev --ignore-platform-reqs --no-scripts
 
-# ──────────────────────────────────────────────
-# Stage 2: Build frontend (Node 22)
-# ──────────────────────────────────────────────
-FROM node:22-alpine AS frontend
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY vite.config.js tailwind.config.js postcss.config.js ./
-COPY resources/ resources/
-COPY public/ public/
-
-# Ziggy necesita vendor/ en tiempo de build
-COPY --from=php-base /var/www/html/vendor vendor
-
-RUN echo "🔨 Building frontend assets..." && \
-    npm run build && \
-    echo "✅ Frontend build complete" && \
-    ls -la public/build/ || (echo "❌ Build failed: public/build does not exist" && exit 1)
-
-# ──────────────────────────────────────────────
-# Stage 3: Imagen final de producción
-# ──────────────────────────────────────────────
-FROM php-base AS app
-
-# Reemplazar public/build con los assets compilados
-COPY --from=frontend /app/public/build public/build
-
-# Copiar public/ a un lugar de inicialización para el volumen persistente
-RUN mkdir -p /var/www/html/public_init && \
-    cp -r /var/www/html/public/* /var/www/html/public_init/
+# Frontend build — Node ya está instalado, compilar y limpiar
+RUN npm ci && npm run build && rm -rf node_modules
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
