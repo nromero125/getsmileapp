@@ -68,7 +68,7 @@ class SubscriptionController extends Controller
             : 'https://api.paddle.com';
 
         $response = Http::withToken(config('cashier.api_key'))
-            ->post("{$baseUrl}/customers/{$customer->paddle_id}/auth-token");
+            ->send('POST', "{$baseUrl}/customers/{$customer->paddle_id}/auth-token");
 
         if (! $response->successful()) {
             \Illuminate\Support\Facades\Log::error('PaddlePortal', ['status' => $response->status(), 'body' => $response->json()]);
