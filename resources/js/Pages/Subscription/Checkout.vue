@@ -131,8 +131,12 @@ async function openCheckout() {
     // Get checkout options from backend
     const { data } = await axios.post(route('subscription.checkout-url'))
 
-    // Open Paddle inline/overlay checkout
-    window.Paddle.Checkout.open(data)
+    // Open Paddle overlay checkout
+    window.Paddle.Checkout.open({
+      ...data,
+      settings: { ...data.settings, displayMode: 'overlay', frameStyle: undefined },
+    })
+    loading.value = false
   } catch (e) {
     console.error(e)
     loading.value = false
