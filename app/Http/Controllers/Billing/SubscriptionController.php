@@ -45,7 +45,7 @@ class SubscriptionController extends Controller
 
         $checkout = $clinic
             ->subscribe($priceId)
-            ->customData(['subscription_type' => 'default', 'clinic_id' => (string) $clinic->id])
+            ->customData(['clinic_id' => (string) $clinic->id])
             ->returnTo(route('dashboard'));
 
         return response()->json($checkout->toArray());
