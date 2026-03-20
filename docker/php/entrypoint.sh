@@ -6,6 +6,9 @@ until php artisan db:monitor --max=1 2>/dev/null; do
   sleep 2
 done
 
+echo "🔍 Descubriendo paquetes..."
+php artisan package:discover --ansi
+
 echo "🔄 Ejecutando migraciones..."
 php artisan migrate --force --no-interaction
 
