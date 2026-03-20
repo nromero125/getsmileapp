@@ -155,7 +155,12 @@ class SubscriptionController extends Controller
             $items[] = ['price_id' => $extraSeatPriceId, 'quantity' => $extraSeats];
         }
 
-        \Illuminate\Support\Facades\Log::info('SyncSeats:patch', ['sub' => $paddleSubId, 'items' => $items]);
+        \Illuminate\Support\Facades\Log::info('SyncSeats:patch', [
+            'sub'         => $paddleSubId,
+            'items'       => $items,
+            'extraSeats'  => $extraSeats,
+            'activeCount' => $clinic->activeUserCount(),
+        ]);
 
         $response = Http::withToken(config('cashier.api_key'))
             ->patch("{$baseUrl}/subscriptions/{$paddleSubId}", [
