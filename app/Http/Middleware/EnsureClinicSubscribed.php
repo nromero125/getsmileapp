@@ -22,6 +22,14 @@ class EnsureClinicSubscribed
             return $next($request);
         }
 
+        \Illuminate\Support\Facades\Log::info('SubscriptionCheck', [
+            'clinic_id'    => $clinic->id,
+            'trial_ends_at'=> $clinic->trial_ends_at,
+            'on_trial'     => $clinic->onLocalTrial(),
+            'subscribed'   => $clinic->subscribed('default'),
+            'sub_count'    => $clinic->subscriptions()->count(),
+        ]);
+
         if ($clinic->hasActiveAccess()) {
             return $next($request);
         }

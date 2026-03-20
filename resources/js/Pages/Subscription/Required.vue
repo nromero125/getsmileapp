@@ -52,12 +52,19 @@
           Preparando checkout...
         </span>
       </button>
+
+      <div class="text-center mt-2">
+        <button @click="logout" class="text-xs underline" style="color:#94a3b8">
+          Cerrar sesión
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { router } from '@inertiajs/vue3'
 import axios from 'axios'
 
 const props = defineProps({
@@ -67,6 +74,10 @@ const props = defineProps({
 })
 
 const loading = ref(false)
+
+function logout() {
+  router.post(route('logout'))
+}
 
 function loadPaddleScript() {
   return new Promise((resolve) => {
