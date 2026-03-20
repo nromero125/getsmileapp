@@ -124,34 +124,45 @@ class SubscriptionController extends Controller
     {
         $extraSeatPriceId = config('cashier.price_extra_seat');
 
+        \Illuminate\Support\Facades\Log::info('SyncSeats:start', [
+            'price_extra_seat' => $extraSeatPriceId,
+            'price_monthly'    => config('cashier.price_monthly'),
+            'subscribed'       => $clinic->subscribed('default'),
+        ]);
+
         if (!$extraSeatPriceId || !$clinic->subscribed('default')) {
+            \Illuminate\Support\Facades\Log::warning('SyncSeats:skipped', ['reason' => !$extraSeatPriceId ? 'no price' : 'not subscribed']);
             return;
         }
 
         $subscription = $clinic->subscription('default');
 
         if (!$subscription || !$subscription->active()) {
+            \Illuminate\Support\Facades\Log::warning('SyncSeats:skipped', ['reason' => 'subscription not active', 'status' => $subscription?->status]);
             return;
         }
 
-        $extraSeats = $clinic->extraSeatCount();
+        $extraSeats  = $clinic->extraSeatCount();
         $paddleSubId = $subscription->paddle_id;
 
         $baseUrl = config('cashier.sandbox')
             ? 'https://sandbox-api.paddle.com'
             : 'https://api.paddle.com';
 
-        // Build subscription items: always include base, add extra seats if needed
         $items = [['price_id' => config('cashier.price_monthly'), 'quantity' => 1]];
 
         if ($extraSeats > 0) {
             $items[] = ['price_id' => $extraSeatPriceId, 'quantity' => $extraSeats];
         }
 
-        Http::withToken(config('cashier.api_key'))
+        \Illuminate\Support\Facades\Log::info('SyncSeats:patch', ['sub' => $paddleSubId, 'items' => $items]);
+
+        $response = Http::withToken(config('cashier.api_key'))
             ->patch("{$baseUrl}/subscriptions/{$paddleSubId}", [
                 'items'                  => $items,
                 'proration_billing_mode' => 'prorated_immediately',
             ]);
+
+        \Illuminate\Support\Facades\Log::info('SyncSeats:response', ['status' => $response->status(), 'body' => $response->json()]);
     }
 }
