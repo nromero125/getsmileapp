@@ -71,6 +71,7 @@ class SubscriptionController extends Controller
             ->post("{$baseUrl}/customers/{$customer->paddle_id}/auth-token");
 
         if (! $response->successful()) {
+            \Illuminate\Support\Facades\Log::error('PaddlePortal', ['status' => $response->status(), 'body' => $response->json()]);
             return redirect()->route('subscription.manage')->with('error', 'No se pudo acceder al portal de facturación.');
         }
 
