@@ -60,6 +60,30 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Show the subscription management page.
+     */
+    public function manage(Request $request)
+    {
+        $clinic = $request->user()->clinic;
+        $subscription = $clinic->subscription('default');
+
+        $trialDaysLeft = $clinic->trial_ends_at
+            ? max(0, (int) now()->diffInDays($clinic->trial_ends_at, false))
+            : 0;
+
+        return Inertia::render('Subscription/Manage', [
+            'subscription'  => $subscription?->only(['paddle_id', 'status', 'trial_ends_at', 'created_at']),
+            'clinic'        => $clinic->only(['id', 'name']),
+            'seatsIncluded' => 3,
+            'activeUsers'   => $clinic->activeUserCount(),
+            'extraSeats'    => $clinic->extraSeatCount(),
+            'onTrial'       => $clinic->onLocalTrial(),
+            'trialDaysLeft' => $trialDaysLeft,
+            'subscribed'    => $clinic->subscribed('default'),
+        ]);
+    }
+
+    /**
      * Show the subscription required page (trial expired, no payment).
      */
     public function required()

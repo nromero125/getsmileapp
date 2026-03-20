@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/subscription/checkout-url', [SubscriptionController::class, 'checkoutUrl'])->name('subscription.checkout-url');
     Route::get('/subscription/required', [SubscriptionController::class, 'required'])->name('subscription.required');
     Route::get('/subscription/billing-portal', [SubscriptionController::class, 'billingPortal'])->name('subscription.billing-portal');
+    Route::get('/subscription/manage', [SubscriptionController::class, 'manage'])->name('subscription.manage');
 
     // All other authenticated routes require active subscription or trial
     Route::middleware('subscribed')->group(function () {

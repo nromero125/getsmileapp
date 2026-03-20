@@ -192,6 +192,12 @@ const subscription = computed(() => page.props.subscription || {})
                     <CogIcon class="w-4 h-4 text-navy-400" />
                     Configuración de Clínica
                   </Link>
+                  <Link v-if="user?.role === 'admin'" :href="route('subscription.manage')"
+                    @click="userMenuOpen = false"
+                    class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-navy-700 dark:text-navy-300 hover:bg-navy-50 dark:hover:bg-navy-800 transition-colors">
+                    <CreditCardIcon class="w-4 h-4 text-navy-400" />
+                    Suscripción y Facturación
+                  </Link>
                 </div>
                 <!-- Logout -->
                 <div class="p-1.5 border-t border-navy-100 dark:border-navy-800">
