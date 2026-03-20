@@ -27,6 +27,18 @@ services:
       QUEUE_CONNECTION: redis
       CACHE_STORE: redis
       SESSION_DRIVER: redis
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "php",
+          "-r",
+          "$$socket = @fsockopen('127.0.0.1', 9000); exit($$socket ? 0 : 1);",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 45s
     networks:
       - dentaris
 
@@ -39,7 +51,8 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public:/var/www/html/public:ro
