@@ -28,5 +28,6 @@ php artisan route:cache
 php artisan view:cache
 php artisan storage:link --force 2>/dev/null || true
 
-echo "✅ Iniciando PHP-FPM..."
+echo "🌐 Iniciando Nginx + PHP-FPM..."
+service nginx start
 exec php-fpm
