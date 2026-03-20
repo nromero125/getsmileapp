@@ -64,7 +64,7 @@ const submit = () => form.post(route('login'))
           <span class="font-display text-white font-semibold text-lg">Dentaris</span>
         </div>
 
-        <div class="bg-white rounded-3xl p-8 shadow-card-lg">
+        <div class="auth-card bg-white rounded-3xl p-8 shadow-card-lg">
           <div class="mb-8">
             <h2 class="font-display text-2xl font-bold text-navy-900">Bienvenido de vuelta</h2>
             <p class="text-navy-500 text-sm mt-1">Inicia sesión en tu clínica</p>

@@ -22,9 +22,9 @@ const submit = () => form.post(route('password.email'))
         <span class="font-display text-white font-semibold text-xl">Dentaris</span>
       </div>
 
-      <div class="bg-white rounded-3xl p-8 shadow-card-lg">
+      <div class="auth-card bg-white rounded-3xl p-8 shadow-card-lg">
         <div class="mb-6">
-          <h2 class="font-display text-2xl font-bold text-navy-900 dark:text-white">Forgot password?</h2>
+          <h2 class="font-display text-2xl font-bold text-navy-900">Forgot password?</h2>
           <p class="text-navy-500 text-sm mt-1">Enter your email and we'll send you a reset link.</p>
         </div>
 
