@@ -131,11 +131,19 @@ async function openCheckout() {
     // Get checkout options from backend
     const { data } = await axios.post(route('subscription.checkout-url'))
 
-    // Open Paddle overlay checkout
     window.Paddle.Checkout.open({
       ...data,
       settings: { ...data.settings, displayMode: 'overlay', frameStyle: undefined },
     })
+
+    window.Paddle.Update({
+      eventCallback(event) {
+        if (event.name === 'checkout.completed') {
+          window.location.href = route('dashboard')
+        }
+      },
+    })
+
     loading.value = false
   } catch (e) {
     console.error(e)
