@@ -128,11 +128,11 @@ async function openCheckout() {
     }
     window.Paddle.Initialize({ token: props.clientToken })
 
-    // Get checkout URL from backend
+    // Get checkout options from backend
     const { data } = await axios.post(route('subscription.checkout-url'))
 
-    // Redirect to Paddle-hosted checkout
-    window.location.href = data.url
+    // Open Paddle inline/overlay checkout
+    window.Paddle.Checkout.open(data)
   } catch (e) {
     console.error(e)
     loading.value = false

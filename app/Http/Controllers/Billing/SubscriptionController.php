@@ -44,13 +44,11 @@ class SubscriptionController extends Controller
         $priceId = config('cashier.price_monthly');
 
         $checkout = $clinic
-            ->newSubscription('default', $priceId)
-            ->returnTo(route('dashboard'))
-            ->checkout([
-                'custom_data' => ['clinic_id' => (string) $clinic->id],
-            ]);
+            ->subscribe($priceId)
+            ->customData(['subscription_type' => 'default', 'clinic_id' => (string) $clinic->id])
+            ->returnTo(route('dashboard'));
 
-        return response()->json(['url' => $checkout->url()]);
+        return response()->json($checkout->toArray());
     }
 
     /**
