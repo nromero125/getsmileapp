@@ -71,10 +71,8 @@ class StaffController extends Controller
             'is_active' => true,
         ]);
 
-        // Sync extra seats in Paddle if going over 3
-        if ($activeCount >= 3) {
-            SubscriptionController::syncExtraSeats($clinic->fresh());
-        }
+        // Sync after creation so count includes new user
+        SubscriptionController::syncExtraSeats($clinic->fresh());
 
         return back()->with('success', 'Usuario agregado correctamente.');
     }
@@ -91,7 +89,14 @@ class StaffController extends Controller
             'working_hours' => 'nullable|array',
         ]);
 
+        $wasActive = $user->is_active;
         $user->update($validated);
+
+        // Sync seats if active status changed
+        if (isset($validated['is_active']) && $validated['is_active'] !== $wasActive) {
+            SubscriptionController::syncExtraSeats(auth()->user()->clinic->fresh());
+        }
+
         return back()->with('success', 'Usuario actualizado correctamente.');
     }
 
