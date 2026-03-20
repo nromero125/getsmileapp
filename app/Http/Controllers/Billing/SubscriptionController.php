@@ -76,11 +76,8 @@ class SubscriptionController extends Controller
         }
 
         $token = $response->json('data.customer_auth_token');
-        $portalBase = config('cashier.sandbox')
-            ? 'https://sandbox-customer.paddle.com'
-            : 'https://customer.paddle.com';
 
-        return redirect("{$portalBase}?customerId={$customer->paddle_id}&customerAuthToken={$token}");
+        return redirect("https://customer.paddle.com/?token={$token}");
     }
 
     /**
