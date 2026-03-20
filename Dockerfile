@@ -6,7 +6,8 @@ FROM php:8.3-fpm-alpine AS php-base
 RUN apk add --no-cache \
     bash curl git unzip \
     libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev \
-    oniguruma-dev libxml2-dev icu-dev zip libzip-dev supervisor
+    oniguruma-dev libxml2-dev icu-dev zip libzip-dev supervisor \
+    autoconf g++ make linux-headers
 
 RUN docker-php-ext-configure gd \
         --with-freetype --with-jpeg --with-webp \
