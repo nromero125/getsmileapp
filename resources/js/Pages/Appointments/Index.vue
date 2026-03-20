@@ -80,12 +80,16 @@ onMounted(async () => {
         : info.dateStr + 'T09:00'
       showNewModal.value = true
     },
-    eventContent: (arg) => ({
-      html: `<div class="fc-event-custom">
-        <div class="font-medium truncate">${arg.event.title}</div>
-        <div class="text-xs opacity-80">${arg.event.extendedProps.dentist || ''}</div>
-      </div>`
-    }),
+    eventContent: (arg) => {
+      const inactive = arg.event.extendedProps.dentist_inactive
+      const dentistLabel = (arg.event.extendedProps.dentist || '') + (inactive ? ' (Inactivo)' : '')
+      return {
+        html: `<div class="fc-event-custom">
+          <div class="font-medium truncate">${arg.event.title}</div>
+          <div class="text-xs opacity-80">${dentistLabel}</div>
+        </div>`
+      }
+    },
   })
   calendarInstance.render()
 })
@@ -173,7 +177,7 @@ const getTreatmentDuration = () => {
             <label class="label">Dentista *</label>
             <select v-model="form.dentist_id" class="input" required>
               <option value="">Seleccionar dentista…</option>
-              <option v-for="d in dentists" :key="d.id" :value="d.id">{{ d.name }}</option>
+              <option v-for="d in dentists.filter(d => d.is_active)" :key="d.id" :value="d.id">{{ d.name }}</option>
             </select>
           </div>
           <div>
@@ -227,7 +231,13 @@ const getTreatmentDuration = () => {
       <div v-if="selectedEvent" class="space-y-4">
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Paciente</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.patient }}</p></div>
-          <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Dentista</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.dentist }}</p></div>
+          <div>
+            <p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Dentista</p>
+            <p class="font-semibold text-navy-900 dark:text-white flex items-center gap-2">
+              {{ selectedEvent.dentist }}
+              <span v-if="selectedEvent.dentist_inactive" class="text-xs font-normal text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Inactivo</span>
+            </p>
+          </div>
           <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Fecha</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.start?.toLocaleDateString('es-MX', { weekday:'short', month:'short', day:'numeric' }) }}</p></div>
           <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Hora</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.start?.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' }) }}</p></div>
           <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Estado</p><StatusBadge :status="selectedEvent.status" /></div>

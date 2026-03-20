@@ -1,10 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm, router, Head } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import Modal from '@/Components/Modal.vue'
 import ConfirmModal from '@/Components/ConfirmModal.vue'
-import { UserPlusIcon, PencilIcon, UserMinusIcon } from '@heroicons/vue/24/outline'
+import { UserPlusIcon, PencilIcon, UserMinusIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
   staff: Array,
@@ -12,9 +12,10 @@ const props = defineProps({
   seatsIncluded: Number,
   extraSeats: Number,
   onTrial: Boolean,
+  activeDentists: Array,
 })
 
-// Add
+// ── Add ──────────────────────────────────────────
 const showAddModal = ref(false)
 const addForm = useForm({ name: '', email: '', password: '', role: 'dentist', phone: '', specialty: '' })
 const submitAdd = () => {
@@ -23,7 +24,7 @@ const submitAdd = () => {
   })
 }
 
-// Edit
+// ── Edit ─────────────────────────────────────────
 const showEditModal = ref(false)
 const editingUser = ref(null)
 const editForm = useForm({ name: '', phone: '', specialty: '', role: 'dentist', is_active: true })
@@ -42,13 +43,33 @@ const submitEdit = () => {
   })
 }
 
-// Deactivate
-const confirmDeactivate = ref({ show: false, user: null })
-const deactivate = (user) => confirmDeactivate.value = { show: true, user }
+// ── Deactivate with reassignment ─────────────────
+const deactivateModal = ref({ show: false, user: null })
+const reassignTo = ref('')
+
+const openDeactivate = (user) => {
+  reassignTo.value = ''
+  deactivateModal.value = { show: true, user }
+}
+
+const hasFutureAppointments = computed(() =>
+  (deactivateModal.value.user?.future_appointments_count ?? 0) > 0
+)
+
+const otherActiveDentists = computed(() =>
+  props.activeDentists.filter(d => d.id !== deactivateModal.value.user?.id)
+)
+
 const doDeactivate = () => {
-  router.delete(route('staff.destroy', confirmDeactivate.value.user.id), {
-    onFinish: () => confirmDeactivate.value = { show: false, user: null }
+  router.delete(route('staff.destroy', deactivateModal.value.user.id), {
+    data: reassignTo.value ? { reassign_to: reassignTo.value } : {},
+    onFinish: () => { deactivateModal.value = { show: false, user: null } }
   })
+}
+
+// ── Reactivate ───────────────────────────────────
+const doReactivate = (user) => {
+  router.put(route('staff.update', user.id), { ...user, is_active: true })
 }
 
 const roleColors = { admin: 'badge-blue', dentist: 'badge-teal', receptionist: 'badge-amber' }
@@ -108,8 +129,9 @@ const roleLabels = { admin: 'Admin', dentist: 'Dentista', receptionist: 'Recepci
         </div>
         <div class="divide-y divide-navy-100 dark:divide-navy-800">
           <div v-for="member in staff" :key="member.id"
-            class="flex items-center gap-4 px-4 py-4 hover:bg-navy-50/50 dark:hover:bg-navy-800/30 transition-colors">
-            <img :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=0F1F3D&color=00BFA6`"
+            class="flex items-center gap-4 px-4 py-4 transition-colors"
+            :class="member.is_active ? 'hover:bg-navy-50/50 dark:hover:bg-navy-800/30' : 'opacity-60'">
+            <img :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=${member.is_active ? '0F1F3D' : '94a3b8'}&color=${member.is_active ? '00BFA6' : 'ffffff'}`"
               class="w-11 h-11 rounded-2xl flex-shrink-0" />
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
@@ -119,13 +141,23 @@ const roleLabels = { admin: 'Admin', dentist: 'Dentista', receptionist: 'Recepci
               </div>
               <p class="text-sm text-navy-500">{{ member.email }}</p>
               <p v-if="member.specialty" class="text-xs text-teal-600 mt-0.5">{{ member.specialty }}</p>
+              <p v-if="member.is_active && member.future_appointments_count > 0"
+                class="text-xs text-amber-600 mt-0.5">
+                {{ member.future_appointments_count }} cita{{ member.future_appointments_count > 1 ? 's' : '' }} futuras
+              </p>
             </div>
             <div class="flex gap-1">
               <button @click="openEdit(member)"
                 class="btn-ghost p-1.5 text-navy-400 hover:text-navy-700 dark:hover:text-white" title="Editar">
                 <PencilIcon class="w-4 h-4" />
               </button>
-              <button v-if="member.is_active" @click="deactivate(member)"
+              <!-- Reactivar -->
+              <button v-if="!member.is_active" @click="doReactivate(member)"
+                class="btn-ghost p-1.5 text-teal-500 hover:text-teal-700" title="Reactivar usuario">
+                <ArrowPathIcon class="w-4 h-4" />
+              </button>
+              <!-- Desactivar -->
+              <button v-if="member.is_active" @click="openDeactivate(member)"
                 class="btn-ghost p-1.5 text-red-400 hover:text-red-600" title="Desactivar">
                 <UserMinusIcon class="w-4 h-4" />
               </button>
@@ -190,13 +222,48 @@ const roleLabels = { admin: 'Admin', dentist: 'Dentista', receptionist: 'Recepci
       </form>
     </Modal>
 
-    <ConfirmModal
-      :show="confirmDeactivate.show"
-      title="Desactivar Miembro del Personal"
-      :message="`¿Desactivar a ${confirmDeactivate.user?.name}? Ya no podrá iniciar sesión.`"
-      confirm-text="Desactivar"
-      @confirm="doDeactivate"
-      @cancel="confirmDeactivate.show = false"
-    />
+    <!-- Deactivate Modal -->
+    <Modal
+      :show="deactivateModal.show"
+      :title="`Desactivar: ${deactivateModal.user?.name}`"
+      size="md"
+      @close="deactivateModal.show = false">
+
+      <div class="space-y-4">
+        <!-- Warning about future appointments -->
+        <div v-if="hasFutureAppointments" class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+          <p class="text-sm font-semibold text-amber-800 dark:text-amber-400 mb-1">
+            Este dentista tiene {{ deactivateModal.user?.future_appointments_count }} cita{{ deactivateModal.user?.future_appointments_count > 1 ? 's' : '' }} futuras pendientes.
+          </p>
+          <p class="text-xs text-amber-700 dark:text-amber-500">
+            Puedes reasignarlas a otro dentista antes de desactivar.
+          </p>
+        </div>
+
+        <div v-else class="text-sm text-navy-600 dark:text-navy-400">
+          ¿Desactivar a <strong>{{ deactivateModal.user?.name }}</strong>? Ya no podrá iniciar sesión.
+        </div>
+
+        <!-- Reassign dropdown -->
+        <div v-if="hasFutureAppointments && otherActiveDentists.length > 0">
+          <label class="label">Reasignar citas futuras a</label>
+          <select v-model="reassignTo" class="input">
+            <option value="">— No reasignar (dejar sin dentista asignado) —</option>
+            <option v-for="d in otherActiveDentists" :key="d.id" :value="d.id">{{ d.name }}</option>
+          </select>
+        </div>
+
+        <div v-if="hasFutureAppointments && otherActiveDentists.length === 0" class="text-xs text-red-600">
+          No hay otros dentistas activos para reasignar.
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" @click="deactivateModal.show = false" class="btn-outline">Cancelar</button>
+          <button @click="doDeactivate" class="btn-danger">
+            Desactivar{{ hasFutureAppointments && reassignTo ? ' y reasignar' : '' }}
+          </button>
+        </div>
+      </div>
+    </Modal>
   </AppLayout>
 </template>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Billing\SubscriptionController;
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,18 +19,31 @@ class StaffController extends Controller
         $staff = User::where('clinic_id', $clinic->id)
             ->orderBy('role')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($member) {
+                $member->future_appointments_count = in_array($member->role, ['dentist', 'admin'])
+                    ? Appointment::where('dentist_id', $member->id)
+                        ->where('appointment_date', '>=', now())
+                        ->whereNotIn('status', ['cancelled', 'completed', 'no_show'])
+                        ->count()
+                    : 0;
+                return $member;
+            });
 
         $activeCount   = $staff->where('is_active', true)->count();
         $seatsIncluded = 3;
         $extraSeats    = max(0, $activeCount - $seatsIncluded);
 
+        $activeDentists = $staff->filter(fn($u) => $u->is_active && in_array($u->role, ['dentist', 'admin']))
+            ->values();
+
         return Inertia::render('Admin/Staff/Index', [
-            'staff'         => $staff,
-            'activeCount'   => $activeCount,
-            'seatsIncluded' => $seatsIncluded,
-            'extraSeats'    => $extraSeats,
-            'onTrial'       => $clinic->onLocalTrial(),
+            'staff'          => $staff->values(),
+            'activeCount'    => $activeCount,
+            'seatsIncluded'  => $seatsIncluded,
+            'extraSeats'     => $extraSeats,
+            'onTrial'        => $clinic->onLocalTrial(),
+            'activeDentists' => $activeDentists->map(fn($u) => ['id' => $u->id, 'name' => $u->name]),
         ]);
     }
 
@@ -100,16 +114,28 @@ class StaffController extends Controller
         return back()->with('success', 'Usuario actualizado correctamente.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
         $clinic = auth()->user()->clinic;
 
         if ($user->clinic_id !== $clinic->id) abort(403);
         if ($user->id === auth()->id()) return back()->withErrors(['error' => 'No puedes desactivarte a ti mismo.']);
 
+        // Reassign future appointments if requested
+        if ($request->reassign_to) {
+            $reassignTo = User::where('id', $request->reassign_to)
+                ->where('clinic_id', $clinic->id)
+                ->where('is_active', true)
+                ->firstOrFail();
+
+            Appointment::where('dentist_id', $user->id)
+                ->where('appointment_date', '>=', now())
+                ->whereNotIn('status', ['cancelled', 'completed', 'no_show'])
+                ->update(['dentist_id' => $reassignTo->id]);
+        }
+
         $user->update(['is_active' => false]);
 
-        // Recalculate extra seats after deactivation
         SubscriptionController::syncExtraSeats($clinic->fresh());
 
         return back()->with('success', 'Usuario desactivado correctamente.');

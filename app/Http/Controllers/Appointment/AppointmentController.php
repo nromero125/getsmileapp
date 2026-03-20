@@ -45,7 +45,7 @@ class AppointmentController extends Controller
 
         $dentists = User::where('clinic_id', $clinicId)
             ->whereIn('role', ['admin', 'dentist'])
-            ->get(['id', 'name', 'specialty']);
+            ->get(['id', 'name', 'specialty', 'is_active']);
 
         $patients  = Patient::where('clinic_id', $clinicId)
             ->get(['id', 'first_name', 'last_name', 'phone']);
@@ -172,6 +172,7 @@ class AppointmentController extends Controller
                     'patient_email'        => $appt->patient->email,
                     'dentist'              => $appt->dentist->name,
                     'dentist_id'           => $appt->dentist_id,
+                    'dentist_inactive'     => ! $appt->dentist->is_active,
                     'status'               => $appt->status,
                     'reason'               => $appt->reason,
                     'duration'             => $appt->duration_minutes,
