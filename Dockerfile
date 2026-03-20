@@ -56,7 +56,10 @@ COPY public/ public/
 # Ziggy necesita vendor/ en tiempo de build
 COPY --from=php-base /var/www/html/vendor vendor
 
-RUN npm run build
+RUN echo "🔨 Building frontend assets..." && \
+    npm run build && \
+    echo "✅ Frontend build complete" && \
+    ls -la public/build/ || (echo "❌ Build failed: public/build does not exist" && exit 1)
 
 # ──────────────────────────────────────────────
 # Stage 3: Imagen final de producción
@@ -65,6 +68,10 @@ FROM php-base AS app
 
 # Reemplazar public/build con los assets compilados
 COPY --from=frontend /app/public/build public/build
+
+# Copiar public/ a un lugar de inicialización para el volumen persistente
+RUN mkdir -p /var/www/html/public_init && \
+    cp -r /var/www/html/public/* /var/www/html/public_init/
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \

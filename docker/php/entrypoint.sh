@@ -11,6 +11,14 @@ mkdir -p \
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 
+echo "📂 Inicializando volumen public/..."
+if [ ! -f public/index.php ]; then
+  echo "   Poblando public/ desde imagen..."
+  cp -r /var/www/html/public_init/* public/
+fi
+chmod -R 755 public
+chown -R www-data:www-data public
+
 echo "⏳ Esperando MySQL..."
 until php artisan db:monitor --max=1 2>/dev/null; do
   sleep 2
