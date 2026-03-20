@@ -1,9 +1,23 @@
 # ──────────────────────────────────────────────
-# Stage 1: Composer dependencies
+# Stage 1: PHP con extensiones + composer install
 # ──────────────────────────────────────────────
-FROM composer:2 AS composer
+FROM php:8.3-fpm-alpine AS php-base
 
-WORKDIR /app
+RUN apk add --no-cache \
+    bash curl git unzip \
+    libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev \
+    oniguruma-dev libxml2-dev icu-dev zip libzip-dev supervisor
+
+RUN docker-php-ext-configure gd \
+        --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql gd bcmath mbstring xml zip opcache pcntl intl
+
+RUN pecl install redis && docker-php-ext-enable redis
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
 RUN composer install \
@@ -17,7 +31,7 @@ COPY . .
 RUN composer dump-autoload --optimize --no-dev
 
 # ──────────────────────────────────────────────
-# Stage 2: Build frontend assets (Node 22)
+# Stage 2: Build frontend (Node 22)
 # ──────────────────────────────────────────────
 FROM node:22-alpine AS frontend
 
@@ -30,58 +44,19 @@ COPY vite.config.js tailwind.config.js postcss.config.js ./
 COPY resources/ resources/
 COPY public/ public/
 
-# Ziggy se importa desde vendor/, necesita estar presente en el build
-COPY --from=composer /app/vendor vendor
+# Ziggy necesita vendor/ en tiempo de build
+COPY --from=php-base /var/www/html/vendor vendor
 
 RUN npm run build
 
 # ──────────────────────────────────────────────
-# Stage 3: PHP-FPM production image
+# Stage 3: Imagen final de producción
 # ──────────────────────────────────────────────
-FROM php:8.3-fpm-alpine AS app
+FROM php-base AS app
 
-RUN apk add --no-cache \
-    bash \
-    curl \
-    git \
-    unzip \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    freetype-dev \
-    oniguruma-dev \
-    libxml2-dev \
-    icu-dev \
-    zip \
-    libzip-dev \
-    supervisor
-
-RUN docker-php-ext-configure gd \
-        --with-freetype \
-        --with-jpeg \
-        --with-webp \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        gd \
-        bcmath \
-        mbstring \
-        xml \
-        zip \
-        opcache \
-        pcntl \
-        intl
-
-RUN pecl install redis && docker-php-ext-enable redis
-
-WORKDIR /var/www/html
-
-# Copiar app completa desde el stage de composer (incluye vendor optimizado)
-COPY --from=composer /app .
-
-# Copiar assets compilados desde el stage de frontend
+# Reemplazar public/build con los assets compilados
 COPY --from=frontend /app/public/build public/build
 
-# Permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
