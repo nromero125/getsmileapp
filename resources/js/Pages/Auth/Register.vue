@@ -70,9 +70,9 @@ const submit = () => form.post(route('register'), {
           <span class="font-display text-white font-semibold text-lg">Dentaris</span>
         </div>
 
-        <div class="bg-white dark:bg-navy-800 rounded-3xl p-8 shadow-card-lg">
+        <div class="bg-white rounded-3xl p-8 shadow-card-lg">
           <div class="mb-6">
-            <h2 class="font-display text-2xl font-bold text-navy-900 dark:text-white">Crear cuenta</h2>
+            <h2 class="font-display text-2xl font-bold text-navy-900">Crear cuenta</h2>
             <p class="text-navy-500 text-sm mt-1">Registra tu clínica en Dentaris</p>
           </div>
 
@@ -116,13 +116,13 @@ const submit = () => form.post(route('register'), {
 
           <!-- Divider -->
           <div class="flex items-center gap-3 my-5">
-            <div class="flex-1 h-px bg-navy-100 dark:bg-navy-700" />
+            <div class="flex-1 h-px bg-navy-100" />
             <span class="text-xs text-navy-400">¿ya tienes cuenta?</span>
-            <div class="flex-1 h-px bg-navy-100 dark:bg-navy-700" />
+            <div class="flex-1 h-px bg-navy-100" />
           </div>
 
           <Link :href="route('login')"
-            class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border-2 border-navy-200 dark:border-navy-600 text-sm font-semibold text-navy-700 dark:text-navy-300 hover:border-teal-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+            class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border-2 border-navy-200 text-sm font-semibold text-navy-700 hover:border-teal-400 hover:text-teal-600 transition-colors">
             Iniciar sesión
           </Link>
         </div>

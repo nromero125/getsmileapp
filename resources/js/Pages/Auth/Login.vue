@@ -64,9 +64,9 @@ const submit = () => form.post(route('login'))
           <span class="font-display text-white font-semibold text-lg">Dentaris</span>
         </div>
 
-        <div class="bg-white dark:bg-navy-800 rounded-3xl p-8 shadow-card-lg">
+        <div class="bg-white rounded-3xl p-8 shadow-card-lg">
           <div class="mb-8">
-            <h2 class="font-display text-2xl font-bold text-navy-900 dark:text-white">Bienvenido de vuelta</h2>
+            <h2 class="font-display text-2xl font-bold text-navy-900">Bienvenido de vuelta</h2>
             <p class="text-navy-500 text-sm mt-1">Inicia sesión en tu clínica</p>
           </div>
 
@@ -88,7 +88,7 @@ const submit = () => form.post(route('login'))
             </div>
             <div class="flex items-center gap-2">
               <input id="remember" v-model="form.remember" type="checkbox" class="rounded text-teal-500 focus:ring-teal-500" />
-              <label for="remember" class="text-sm text-navy-600 dark:text-navy-400">Recordarme</label>
+              <label for="remember" class="text-sm text-navy-600">Recordarme</label>
             </div>
             <button type="submit" class="btn-primary w-full justify-center py-3 text-base" :disabled="form.processing">
               {{ form.processing ? 'Iniciando sesión…' : 'Iniciar Sesión' }}
@@ -97,18 +97,18 @@ const submit = () => form.post(route('login'))
 
           <!-- Divider -->
           <div class="flex items-center gap-3 my-5">
-            <div class="flex-1 h-px bg-navy-100 dark:bg-navy-700" />
+            <div class="flex-1 h-px bg-navy-100" />
             <span class="text-xs text-navy-400">¿nuevo en Dentaris?</span>
-            <div class="flex-1 h-px bg-navy-100 dark:bg-navy-700" />
+            <div class="flex-1 h-px bg-navy-100" />
           </div>
 
           <Link :href="route('register')"
-            class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border-2 border-navy-200 dark:border-navy-600 text-sm font-semibold text-navy-700 dark:text-navy-300 hover:border-teal-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+            class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border-2 border-navy-200 text-sm font-semibold text-navy-700 hover:border-teal-400 hover:text-teal-600 transition-colors">
             Registrar mi clínica gratis
           </Link>
 
-          <div class="mt-5 p-4 bg-navy-50 dark:bg-navy-900 rounded-2xl text-xs text-navy-500">
-            <p class="font-semibold text-navy-700 dark:text-navy-300 mb-2">Credenciales de prueba</p>
+          <div class="mt-5 p-4 bg-navy-50 rounded-2xl text-xs text-navy-500">
+            <p class="font-semibold text-navy-700 mb-2">Credenciales de prueba</p>
             <div class="space-y-1">
               <p>Admin: <span class="font-mono text-teal-600">admin@dentaris.app</span></p>
               <p>Dentista: <span class="font-mono text-teal-600">james@dentaris.app</span></p>

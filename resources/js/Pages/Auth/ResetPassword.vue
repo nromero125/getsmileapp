@@ -29,7 +29,7 @@ const submit = () => form.post(route('password.store'), {
         <span class="font-display text-white font-semibold text-xl">Dentaris</span>
       </div>
 
-      <div class="bg-white dark:bg-navy-800 rounded-3xl p-8 shadow-card-lg">
+      <div class="bg-white rounded-3xl p-8 shadow-card-lg">
         <div class="mb-6">
           <h2 class="font-display text-2xl font-bold text-navy-900 dark:text-white">Set new password</h2>
           <p class="text-navy-500 text-sm mt-1">Choose a strong password for your account</p>
