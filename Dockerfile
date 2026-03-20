@@ -30,7 +30,12 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
     --ignore-platform-reqs
 
 COPY . .
-RUN mkdir -p bootstrap/cache storage/framework/{cache,sessions,views} storage/logs \
+RUN mkdir -p \
+    bootstrap/cache \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
     && chmod -R 775 bootstrap/cache storage \
     && COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-dev --ignore-platform-reqs --no-scripts
 

@@ -2,9 +2,12 @@
 set -e
 
 echo "📁 Preparando directorios..."
-mkdir -p storage/framework/{cache,sessions,views} \
-         storage/logs \
-         bootstrap/cache
+mkdir -p \
+  storage/framework/cache \
+  storage/framework/sessions \
+  storage/framework/views \
+  storage/logs \
+  bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 
