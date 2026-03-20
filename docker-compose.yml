@@ -5,9 +5,9 @@ services:
     build:
       context: .
       target: app
+    image: dentaris_app          # ← nombra la imagen para que worker/scheduler la reusen
     container_name: dentaris_app
     restart: unless-stopped
-    # entrypoint.sh: corre migraciones + cache + php-fpm
     entrypoint: ["entrypoint.sh"]
     depends_on:
       mysql:
@@ -50,19 +50,12 @@ services:
 
   # ── Queue Worker ───────────────────────────
   worker:
-    build:
-      context: .
-      target: app
+    image: dentaris_app          # ← reutiliza la imagen ya construida
     container_name: dentaris_worker
     restart: unless-stopped
     command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --memory=256
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      app:
-        condition: service_started
+      - app
     volumes:
       - app_storage:/var/www/html/storage
     env_file: .env
@@ -79,24 +72,16 @@ services:
 
   # ── Scheduler ──────────────────────────────
   scheduler:
-    build:
-      context: .
-      target: app
+    image: dentaris_app          # ← reutiliza la imagen ya construida
     container_name: dentaris_scheduler
     restart: unless-stopped
-    # Corre php artisan schedule:run cada 60s (no necesita cron)
     command: >
       sh -c "while true; do
         php artisan schedule:run --no-interaction;
         sleep 60;
       done"
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      app:
-        condition: service_started
+      - app
     volumes:
       - app_storage:/var/www/html/storage
     env_file: .env
@@ -125,7 +110,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
     ports:
-      - "3306:3306"   # quitar en producción si no necesitas acceso externo
+      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootsecret}"]
       interval: 10s

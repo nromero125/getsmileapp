@@ -21,15 +21,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
-RUN composer install \
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
     --no-dev \
     --no-scripts \
     --no-autoloader \
     --prefer-dist \
-    --no-interaction
+    --no-interaction \
+    --ignore-platform-reqs
 
 COPY . .
-RUN composer dump-autoload --optimize --no-dev
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-dev --ignore-platform-reqs
 
 # ──────────────────────────────────────────────
 # Stage 2: Build frontend (Node 22)
