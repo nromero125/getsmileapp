@@ -1,27 +1,45 @@
 # ──────────────────────────────────────────────
-# Stage 1: Build frontend assets (Node 22)
+# Stage 1: Composer dependencies
+# ──────────────────────────────────────────────
+FROM composer:2 AS composer
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --no-interaction
+
+COPY . .
+RUN composer dump-autoload --optimize --no-dev
+
+# ──────────────────────────────────────────────
+# Stage 2: Build frontend assets (Node 22)
 # ──────────────────────────────────────────────
 FROM node:22-alpine AS frontend
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --prefer-offline
+RUN npm ci
 
+COPY vite.config.js tailwind.config.js postcss.config.js ./
 COPY resources/ resources/
-COPY vite.config.js ./
-COPY tailwind.config.js ./
-COPY postcss.config.js ./
 COPY public/ public/
+
+# Ziggy se importa desde vendor/, necesita estar presente en el build
+COPY --from=composer /app/vendor vendor
 
 RUN npm run build
 
 # ──────────────────────────────────────────────
-# Stage 2: PHP-FPM production image
+# Stage 3: PHP-FPM production image
 # ──────────────────────────────────────────────
 FROM php:8.3-fpm-alpine AS app
 
-# System dependencies
 RUN apk add --no-cache \
     bash \
     curl \
@@ -38,7 +56,6 @@ RUN apk add --no-cache \
     libzip-dev \
     supervisor
 
-# PHP extensions
 RUN docker-php-ext-configure gd \
         --with-freetype \
         --with-jpeg \
@@ -54,33 +71,17 @@ RUN docker-php-ext-configure gd \
         pcntl \
         intl
 
-# Redis extension via PECL
 RUN pecl install redis && docker-php-ext-enable redis
-
-# Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files first (layer cache)
-COPY composer.json composer.lock ./
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --no-autoloader \
-    --prefer-dist \
-    --no-interaction
+# Copiar app completa desde el stage de composer (incluye vendor optimizado)
+COPY --from=composer /app .
 
-# Copy full app
-COPY . .
-
-# Copy built assets from stage 1
+# Copiar assets compilados desde el stage de frontend
 COPY --from=frontend /app/public/build public/build
 
-# Finish composer setup
-RUN composer dump-autoload --optimize --no-dev
-
-# Permissions
+# Permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
@@ -92,5 +93,4 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 9000
 
-# Default: php-fpm (workers y scheduler sobreescriben el CMD)
 CMD ["php-fpm"]
