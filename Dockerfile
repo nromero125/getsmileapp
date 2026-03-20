@@ -30,7 +30,9 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
     --ignore-platform-reqs
 
 COPY . .
-RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-dev --ignore-platform-reqs
+RUN mkdir -p bootstrap/cache storage/framework/{cache,sessions,views} storage/logs \
+    && chmod -R 775 bootstrap/cache storage \
+    && COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-dev --ignore-platform-reqs
 
 # ──────────────────────────────────────────────
 # Stage 2: Build frontend (Node 22)
