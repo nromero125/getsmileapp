@@ -68,16 +68,16 @@ class SubscriptionController extends Controller
             : 'https://api.paddle.com';
 
         $response = Http::withToken(config('cashier.api_key'))
-            ->send('POST', "{$baseUrl}/customers/{$customer->paddle_id}/auth-token");
+            ->send('POST', "{$baseUrl}/customers/{$customer->paddle_id}/portal-sessions");
 
         if (! $response->successful()) {
             \Illuminate\Support\Facades\Log::error('PaddlePortal', ['status' => $response->status(), 'body' => $response->json()]);
             return redirect()->route('subscription.manage')->with('error', 'No se pudo acceder al portal de facturación.');
         }
 
-        $token = $response->json('data.customer_auth_token');
+        $url = $response->json('data.urls.general.overview');
 
-        return redirect("https://customer.paddle.com/?token={$token}");
+        return redirect($url);
     }
 
     /**
