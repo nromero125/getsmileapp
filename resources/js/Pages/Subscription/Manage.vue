@@ -74,10 +74,10 @@ const statusColor = computed(() => {
               class="btn-primary text-sm px-4 py-2">
               Activar suscripción
             </Link>
-            <a v-else :href="route('subscription.billing-portal')"
+            <Link v-else :href="route('subscription.billing-portal')"
               class="btn-outline text-sm px-4 py-2 text-center">
               Portal de facturación
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -52,11 +52,34 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Redirect to Paddle's billing portal.
+     * Redirect to Paddle's customer portal.
      */
     public function billingPortal(Request $request)
     {
-        return $request->user()->clinic->redirectToBillingPortal(route('dashboard'));
+        $clinic    = $request->user()->clinic;
+        $customer  = $clinic->customer;
+
+        if (! $customer?->paddle_id) {
+            return redirect()->route('subscription.manage')->with('error', 'No se encontró un cliente en Paddle.');
+        }
+
+        $baseUrl = config('cashier.sandbox')
+            ? 'https://sandbox-api.paddle.com'
+            : 'https://api.paddle.com';
+
+        $response = Http::withToken(config('cashier.api_key'))
+            ->post("{$baseUrl}/customers/{$customer->paddle_id}/auth-token");
+
+        if (! $response->successful()) {
+            return redirect()->route('subscription.manage')->with('error', 'No se pudo acceder al portal de facturación.');
+        }
+
+        $token = $response->json('data.customer_auth_token');
+        $portalBase = config('cashier.sandbox')
+            ? 'https://sandbox-buyer.paddle.com'
+            : 'https://buyer.paddle.com';
+
+        return redirect("{$portalBase}?customerId={$customer->paddle_id}&customerAuthToken={$token}");
     }
 
     /**
