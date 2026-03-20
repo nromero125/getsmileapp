@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
 
         Gate::define('admin',    fn($user) => $user->isAdmin());
         Gate::define('clinical', fn($user) => $user->isDentist() || $user->isAdmin());
