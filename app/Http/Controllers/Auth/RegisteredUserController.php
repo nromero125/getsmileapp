@@ -18,17 +18,12 @@ use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): Response
     {
         return Inertia::render('Auth/Register');
     }
 
     /**
-     * Handle an incoming registration request.
-     *
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
@@ -44,10 +39,11 @@ class RegisteredUserController extends Controller
         $slug = $baseSlug . '-' . Str::lower(Str::random(5));
 
         $clinic = Clinic::create([
-            'name'      => $request->clinic_name,
-            'slug'      => $slug,
-            'email'     => $request->email,
-            'is_active' => true,
+            'name'          => $request->clinic_name,
+            'slug'          => $slug,
+            'email'         => $request->email,
+            'is_active'     => true,
+            'trial_ends_at' => now()->addDays(14),
         ]);
 
         $user = User::create([
@@ -59,9 +55,9 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
-
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to subscription checkout to collect payment method (billed after trial)
+        return redirect()->route('subscription.checkout');
     }
 }

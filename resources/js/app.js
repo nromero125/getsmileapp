@@ -15,7 +15,7 @@ Alpine.plugin(persist);
 window.Alpine = Alpine;
 Alpine.start();
 
-const appName = import.meta.env.VITE_APP_NAME || 'GetSmile';
+const appName = import.meta.env.VITE_APP_NAME || 'Dentaris';
 
 createInertiaApp({
     title: (title) => title ? `${title} — ${appName}` : appName,
@@ -32,7 +32,7 @@ createInertiaApp({
                 pauseOnHover: true,
                 draggable: true,
                 hideProgressBar: false,
-                toastClassName: 'getsmile-toast',
+                toastClassName: 'dentaris-toast',
             })
             .component('Link', Link)
             .component('Head', Head)

@@ -28,7 +28,7 @@ const submit = () => form.post(route('register'), {
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
             </svg>
           </div>
-          <span class="font-display text-white font-semibold text-xl">GetSmile</span>
+          <span class="font-display text-white font-semibold text-xl">Dentaris</span>
         </div>
         <h1 class="font-display text-5xl font-bold text-white leading-tight mb-4">
           Tu clínica,<br/>en minutos
@@ -67,13 +67,13 @@ const submit = () => form.post(route('register'), {
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
             </svg>
           </div>
-          <span class="font-display text-white font-semibold text-lg">GetSmile</span>
+          <span class="font-display text-white font-semibold text-lg">Dentaris</span>
         </div>
 
         <div class="bg-white dark:bg-navy-800 rounded-3xl p-8 shadow-card-lg">
           <div class="mb-6">
             <h2 class="font-display text-2xl font-bold text-navy-900 dark:text-white">Crear cuenta</h2>
-            <p class="text-navy-500 text-sm mt-1">Registra tu clínica en GetSmile</p>
+            <p class="text-navy-500 text-sm mt-1">Registra tu clínica en Dentaris</p>
           </div>
 
           <form @submit.prevent="submit" class="space-y-4">

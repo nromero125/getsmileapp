@@ -154,7 +154,7 @@ const getTreatmentDuration = () => {
       </div>
 
       <!-- Calendar -->
-      <div ref="calendar" class="fc-getsmile"></div>
+      <div ref="calendar" class="fc-dentaris"></div>
     </div>
 
     <!-- New Appointment Modal -->
@@ -275,14 +275,14 @@ const getTreatmentDuration = () => {
 </template>
 
 <style>
-.fc-getsmile .fc-toolbar-title {
+.fc-dentaris .fc-toolbar-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.1rem;
   font-weight: 600;
   color: #0F1F3D;
 }
-.dark .fc-getsmile .fc-toolbar-title { color: #FAFAF7; }
-.fc-getsmile .fc-button {
+.dark .fc-dentaris .fc-toolbar-title { color: #FAFAF7; }
+.fc-dentaris .fc-button {
   background: #0F1F3D !important;
   border-color: #0F1F3D !important;
   font-family: 'DM Sans', sans-serif !important;
@@ -290,14 +290,14 @@ const getTreatmentDuration = () => {
   border-radius: 0.5rem !important;
   padding: 0.35rem 0.75rem !important;
 }
-.fc-getsmile .fc-button:hover { background: #00BFA6 !important; border-color: #00BFA6 !important; }
-.fc-getsmile .fc-button-active { background: #00BFA6 !important; border-color: #00BFA6 !important; }
-.fc-getsmile .fc-event { border-radius: 6px !important; border: none !important; padding: 2px 6px !important; font-size: 0.78rem !important; }
-.fc-getsmile .fc-event-custom { padding: 1px 2px; }
-.fc-getsmile .fc-daygrid-day-number,
-.fc-getsmile .fc-col-header-cell-cushion { color: #374151; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; }
-.dark .fc-getsmile .fc-daygrid-day-number,
-.dark .fc-getsmile .fc-col-header-cell-cushion { color: #D1D5DB; }
-.fc-getsmile .fc-timegrid-slot-label { font-size: 0.75rem; color: #9CA3AF; }
-.fc-getsmile .fc-now-indicator-line { border-color: #00BFA6 !important; }
+.fc-dentaris .fc-button:hover { background: #00BFA6 !important; border-color: #00BFA6 !important; }
+.fc-dentaris .fc-button-active { background: #00BFA6 !important; border-color: #00BFA6 !important; }
+.fc-dentaris .fc-event { border-radius: 6px !important; border: none !important; padding: 2px 6px !important; font-size: 0.78rem !important; }
+.fc-dentaris .fc-event-custom { padding: 1px 2px; }
+.fc-dentaris .fc-daygrid-day-number,
+.fc-dentaris .fc-col-header-cell-cushion { color: #374151; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; }
+.dark .fc-dentaris .fc-daygrid-day-number,
+.dark .fc-dentaris .fc-col-header-cell-cushion { color: #D1D5DB; }
+.fc-dentaris .fc-timegrid-slot-label { font-size: 0.75rem; color: #9CA3AF; }
+.fc-dentaris .fc-now-indicator-line { border-color: #00BFA6 !important; }
 </style>

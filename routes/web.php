@@ -9,6 +9,7 @@ use App\Http\Controllers\Appointment\DentalRecordController;
 use App\Http\Controllers\Appointment\DiagnosisController;
 use App\Http\Controllers\Billing\InvoiceController;
 use App\Http\Controllers\Billing\QuoteController;
+use App\Http\Controllers\Billing\SubscriptionController;
 use App\Http\Controllers\Inventory\InventoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Patient\PatientController;
@@ -16,109 +17,121 @@ use App\Http\Controllers\Patient\PatientFileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn() => redirect()->route('dashboard'));
+Route::get('/', fn() => \Inertia\Inertia::render('Welcome'))->name('home');
 
 // Auth routes (Breeze)
 require __DIR__.'/auth.php';
 
+// Paddle webhook (must be before auth middleware)
+Route::post('/paddle/webhook', '\Laravel\Paddle\Http\Controllers\WebhookController')->name('cashier.webhook');
+
 // Authenticated routes
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Subscription — no 'subscribed' middleware here (accessible during trial and after expiry)
+    Route::get('/subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+    Route::post('/subscription/checkout-url', [SubscriptionController::class, 'checkoutUrl'])->name('subscription.checkout-url');
+    Route::get('/subscription/required', [SubscriptionController::class, 'required'])->name('subscription.required');
+    Route::get('/subscription/billing-portal', [SubscriptionController::class, 'billingPortal'])->name('subscription.billing-portal');
 
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // All other authenticated routes require active subscription or trial
+    Route::middleware('subscribed')->group(function () {
 
-    // Patients — view/create/edit: all roles; delete: billing only
-    Route::resource('patients', PatientController::class)->except(['destroy']);
-    Route::delete('patients/{patient}', [PatientController::class, 'destroy'])
-        ->middleware('can:billing')->name('patients.destroy');
-    Route::post('patients/{patient}/files', [PatientFileController::class, 'store'])->name('patients.files.store');
-    Route::delete('patients/{patient}/files/{media}', [PatientFileController::class, 'destroy'])->name('patients.files.destroy');
-    Route::get('patients/{patient}/files/{media}/download', [PatientFileController::class, 'download'])->name('patients.files.download');
+        // Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Dental Records (Odontogram) — clinical only (dentist + admin)
-    Route::middleware('can:clinical')->group(function () {
-        Route::get('patients/{patient}/odontogram', [DiagnosisController::class, 'index'])->name('patients.odontogram');
-        Route::post('patients/{patient}/dental-records', [DentalRecordController::class, 'store'])->name('patients.dental-records.store');
-        Route::put('patients/{patient}/dental-records/{record}', [DentalRecordController::class, 'update'])->name('patients.dental-records.update');
-        Route::delete('patients/{patient}/dental-records/{record}', [DentalRecordController::class, 'destroy'])->name('patients.dental-records.destroy');
-        // Tooth diagnoses (new catalog-based system)
-        Route::post('patients/{patient}/diagnoses', [DiagnosisController::class, 'store'])->name('patients.diagnoses.store');
-        Route::put('patients/{patient}/diagnoses/{diagnosis}', [DiagnosisController::class, 'update'])->name('patients.diagnoses.update');
-        Route::delete('patients/{patient}/diagnoses/{diagnosis}', [DiagnosisController::class, 'destroy'])->name('patients.diagnoses.destroy');
-    });
+        // Profile
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Appointments — view/create/update: all roles; delete: billing only
-    Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
-    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
-    Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])->name('appointments.show');
-    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
-    Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update']);
-    Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])
-        ->middleware('can:billing')->name('appointments.destroy');
-    Route::post('/appointments/{appointment}/send-confirmation', [AppointmentController::class, 'sendConfirmation'])
-        ->name('appointments.send-confirmation');
+        // Patients — view/create/edit: all roles; delete: billing only
+        Route::resource('patients', PatientController::class)->except(['destroy']);
+        Route::delete('patients/{patient}', [PatientController::class, 'destroy'])
+            ->middleware('can:billing')->name('patients.destroy');
+        Route::post('patients/{patient}/files', [PatientFileController::class, 'store'])->name('patients.files.store');
+        Route::delete('patients/{patient}/files/{media}', [PatientFileController::class, 'destroy'])->name('patients.files.destroy');
+        Route::get('patients/{patient}/files/{media}/download', [PatientFileController::class, 'download'])->name('patients.files.download');
 
-    // Billing — view: all roles; create/pay: billing only (receptionist + admin)
-    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('/receivables', [InvoiceController::class, 'receivables'])->name('receivables.index');
-    Route::middleware('can:billing')->group(function () {
-        Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
-        Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
-        Route::post('/invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])->name('invoices.payment');
-        Route::post('/invoices/{invoice}/installments', [InvoiceController::class, 'storeInstallmentPlan'])->name('invoices.installments.store');
-        Route::post('/invoices/{invoice}/installments/{installment}/pay', [InvoiceController::class, 'payInstallment'])->name('invoices.installments.pay');
-        Route::delete('/invoices/{invoice}/installments', [InvoiceController::class, 'destroyInstallmentPlan'])->name('invoices.installments.destroy');
-    });
-    Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])->name('invoices.pdf');
-    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+        // Dental Records (Odontogram) — clinical only (dentist + admin)
+        Route::middleware('can:clinical')->group(function () {
+            Route::get('patients/{patient}/odontogram', [DiagnosisController::class, 'index'])->name('patients.odontogram');
+            Route::post('patients/{patient}/dental-records', [DentalRecordController::class, 'store'])->name('patients.dental-records.store');
+            Route::put('patients/{patient}/dental-records/{record}', [DentalRecordController::class, 'update'])->name('patients.dental-records.update');
+            Route::delete('patients/{patient}/dental-records/{record}', [DentalRecordController::class, 'destroy'])->name('patients.dental-records.destroy');
+            Route::post('patients/{patient}/diagnoses', [DiagnosisController::class, 'store'])->name('patients.diagnoses.store');
+            Route::put('patients/{patient}/diagnoses/{diagnosis}', [DiagnosisController::class, 'update'])->name('patients.diagnoses.update');
+            Route::delete('patients/{patient}/diagnoses/{diagnosis}', [DiagnosisController::class, 'destroy'])->name('patients.diagnoses.destroy');
+        });
 
-    // Quotes
-    Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
-    Route::middleware('can:billing')->group(function () {
-        Route::get('/quotes/create', [QuoteController::class, 'create'])->name('quotes.create');
-        Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
-        Route::patch('/quotes/{quote}/status', [QuoteController::class, 'updateStatus'])->name('quotes.status');
-        Route::post('/quotes/{quote}/convert', [QuoteController::class, 'convertToInvoice'])->name('quotes.convert');
-        Route::delete('/quotes/{quote}', [QuoteController::class, 'destroy'])->name('quotes.destroy');
-    });
-    Route::get('/quotes/{quote}', [QuoteController::class, 'show'])->name('quotes.show');
+        // Appointments — view/create/update: all roles; delete: billing only
+        Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+        Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+        Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])->name('appointments.show');
+        Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
+        Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update']);
+        Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])
+            ->middleware('can:billing')->name('appointments.destroy');
+        Route::post('/appointments/{appointment}/send-confirmation', [AppointmentController::class, 'sendConfirmation'])
+            ->name('appointments.send-confirmation');
 
-    // Inventory — view + movements: all roles; item CRUD: admin only
-    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::post('/inventory/items/{item}/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
-    Route::middleware('can:admin')->group(function () {
-        Route::post('/inventory/items', [InventoryController::class, 'store'])->name('inventory.store');
-        Route::put('/inventory/items/{item}', [InventoryController::class, 'update'])->name('inventory.update');
-        Route::delete('/inventory/items/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
-        Route::post('/inventory/categories', [InventoryController::class, 'storeCategory'])->name('inventory.categories.store');
-        Route::delete('/inventory/categories/{category}', [InventoryController::class, 'destroyCategory'])->name('inventory.categories.destroy');
-    });
+        // Billing — view: all roles; create/pay: billing only (receptionist + admin)
+        Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('/receivables', [InvoiceController::class, 'receivables'])->name('receivables.index');
+        Route::middleware('can:billing')->group(function () {
+            Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+            Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+            Route::post('/invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])->name('invoices.payment');
+            Route::post('/invoices/{invoice}/installments', [InvoiceController::class, 'storeInstallmentPlan'])->name('invoices.installments.store');
+            Route::post('/invoices/{invoice}/installments/{installment}/pay', [InvoiceController::class, 'payInstallment'])->name('invoices.installments.pay');
+            Route::delete('/invoices/{invoice}/installments', [InvoiceController::class, 'destroyInstallmentPlan'])->name('invoices.installments.destroy');
+        });
+        Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])->name('invoices.pdf');
+        Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
 
-    // Admin
-    Route::middleware('can:admin')->group(function () {
-        Route::get('/clinic/settings', [ClinicController::class, 'edit'])->name('clinic.settings');
-        Route::put('/clinic/settings', [ClinicController::class, 'update'])->name('clinic.settings.update');
-        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
-        Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
-        Route::delete('/staff/{user}', [StaffController::class, 'destroy'])->name('staff.destroy');
-        // Treatments
-        Route::get('/treatments', [TreatmentController::class, 'index'])->name('treatments.index');
-        Route::post('/treatments', [TreatmentController::class, 'store'])->name('treatments.store');
-        Route::put('/treatments/{treatment}', [TreatmentController::class, 'update'])->name('treatments.update');
-        Route::delete('/treatments/{treatment}', [TreatmentController::class, 'destroy'])->name('treatments.destroy');
-        Route::post('/treatment-categories', [TreatmentController::class, 'storeCategory'])->name('treatment-categories.store');
-        Route::delete('/treatment-categories/{category}', [TreatmentController::class, 'destroyCategory'])->name('treatment-categories.destroy');
-        // Diagnosis catalog
-        Route::get('/diagnosis-catalog', [DiagnosisCatalogController::class, 'index'])->name('diagnosis-catalog.index');
-        Route::post('/diagnosis-catalog', [DiagnosisCatalogController::class, 'store'])->name('diagnosis-catalog.store');
-        Route::put('/diagnosis-catalog/{diagnosis}', [DiagnosisCatalogController::class, 'update'])->name('diagnosis-catalog.update');
-        Route::delete('/diagnosis-catalog/{diagnosis}', [DiagnosisCatalogController::class, 'destroy'])->name('diagnosis-catalog.destroy');
+        // Quotes
+        Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
+        Route::middleware('can:billing')->group(function () {
+            Route::get('/quotes/create', [QuoteController::class, 'create'])->name('quotes.create');
+            Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
+            Route::patch('/quotes/{quote}/status', [QuoteController::class, 'updateStatus'])->name('quotes.status');
+            Route::post('/quotes/{quote}/convert', [QuoteController::class, 'convertToInvoice'])->name('quotes.convert');
+            Route::delete('/quotes/{quote}', [QuoteController::class, 'destroy'])->name('quotes.destroy');
+        });
+        Route::get('/quotes/{quote}', [QuoteController::class, 'show'])->name('quotes.show');
+
+        // Inventory — view + movements: all roles; item CRUD: admin only
+        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::post('/inventory/items/{item}/movements', [InventoryController::class, 'storeMovement'])->name('inventory.movements.store');
+        Route::middleware('can:admin')->group(function () {
+            Route::post('/inventory/items', [InventoryController::class, 'store'])->name('inventory.store');
+            Route::put('/inventory/items/{item}', [InventoryController::class, 'update'])->name('inventory.update');
+            Route::delete('/inventory/items/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+            Route::post('/inventory/categories', [InventoryController::class, 'storeCategory'])->name('inventory.categories.store');
+            Route::delete('/inventory/categories/{category}', [InventoryController::class, 'destroyCategory'])->name('inventory.categories.destroy');
+        });
+
+        // Admin
+        Route::middleware('can:admin')->group(function () {
+            Route::get('/clinic/settings', [ClinicController::class, 'edit'])->name('clinic.settings');
+            Route::put('/clinic/settings', [ClinicController::class, 'update'])->name('clinic.settings.update');
+            Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+            Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+            Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+            Route::delete('/staff/{user}', [StaffController::class, 'destroy'])->name('staff.destroy');
+            // Treatments
+            Route::get('/treatments', [TreatmentController::class, 'index'])->name('treatments.index');
+            Route::post('/treatments', [TreatmentController::class, 'store'])->name('treatments.store');
+            Route::put('/treatments/{treatment}', [TreatmentController::class, 'update'])->name('treatments.update');
+            Route::delete('/treatments/{treatment}', [TreatmentController::class, 'destroy'])->name('treatments.destroy');
+            Route::post('/treatment-categories', [TreatmentController::class, 'storeCategory'])->name('treatment-categories.store');
+            Route::delete('/treatment-categories/{category}', [TreatmentController::class, 'destroyCategory'])->name('treatment-categories.destroy');
+            // Diagnosis catalog
+            Route::get('/diagnosis-catalog', [DiagnosisCatalogController::class, 'index'])->name('diagnosis-catalog.index');
+            Route::post('/diagnosis-catalog', [DiagnosisCatalogController::class, 'store'])->name('diagnosis-catalog.store');
+            Route::put('/diagnosis-catalog/{diagnosis}', [DiagnosisCatalogController::class, 'update'])->name('diagnosis-catalog.update');
+            Route::delete('/diagnosis-catalog/{diagnosis}', [DiagnosisCatalogController::class, 'destroy'])->name('diagnosis-catalog.destroy');
+        });
     });
 });
 
@@ -126,6 +139,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/appointments/confirm/{token}', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
 
 // API endpoints for calendar
-Route::middleware(['auth', 'verified'])->prefix('api')->group(function () {
+Route::middleware(['auth', 'verified', 'subscribed'])->prefix('api')->group(function () {
     Route::get('/appointments/calendar', [AppointmentController::class, 'apiList'])->name('api.appointments.calendar');
 });

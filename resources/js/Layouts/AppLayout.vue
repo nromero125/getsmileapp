@@ -46,6 +46,7 @@ const isActive = (href) => {
 }
 
 const flash = computed(() => page.props.flash || {})
+const subscription = computed(() => page.props.subscription || {})
 </script>
 
 <template>
@@ -75,7 +76,7 @@ const flash = computed(() => page.props.flash || {})
           </div>
           <Transition enter-active-class="transition-all duration-200" leave-active-class="transition-all duration-200"
             enter-from-class="opacity-0 w-0" leave-to-class="opacity-0 w-0">
-            <span v-if="sidebarOpen" class="font-display text-white font-semibold text-lg tracking-tight truncate">GetSmile</span>
+            <span v-if="sidebarOpen" class="font-display text-white font-semibold text-lg tracking-tight truncate">Dentaris</span>
           </Transition>
         </Link>
         <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:flex p-1 rounded-lg text-navy-400 hover:text-white hover:bg-white/10 transition-colors">
@@ -205,6 +206,27 @@ const flash = computed(() => page.props.flash || {})
           </div>
         </div>
       </header>
+
+      <!-- Trial Banner -->
+      <div v-if="subscription.on_trial && !subscription.subscribed" class="px-4 lg:px-6 pt-4">
+        <div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm"
+          style="background:rgba(0,191,166,0.1); border:1px solid rgba(0,191,166,0.3); color:#0F1F3D">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 flex-shrink-0" style="color:#00BFA6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>
+              Período de prueba: <strong>{{ subscription.trial_days_left }} días restantes</strong>
+              (vence el {{ subscription.trial_ends_at }})
+            </span>
+          </div>
+          <Link :href="route('subscription.checkout')"
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-white"
+            style="background:#00BFA6">
+            Activar plan →
+          </Link>
+        </div>
+      </div>
 
       <!-- Flash Messages -->
       <div v-if="flash.success || flash.error" class="px-4 lg:px-6 pt-4">

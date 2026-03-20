@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         User::create([
             'clinic_id' => $clinic->id,
             'name' => 'Dr. Sarah Mitchell',
-            'email' => 'admin@getsmile.app',
+            'email' => 'admin@dentaris.app',
             'password' => Hash::make('password'),
             'role' => 'admin',
             'phone' => '+1 (555) 100-0001',
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
         User::create([
             'clinic_id' => $clinic->id,
             'name' => 'Dr. James Rodriguez',
-            'email' => 'james@getsmile.app',
+            'email' => 'james@dentaris.app',
             'password' => Hash::make('password'),
             'role' => 'dentist',
             'phone' => '+1 (555) 100-0002',
@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
         User::create([
             'clinic_id' => $clinic->id,
             'name' => 'Dr. Emily Chen',
-            'email' => 'emily@getsmile.app',
+            'email' => 'emily@dentaris.app',
             'password' => Hash::make('password'),
             'role' => 'dentist',
             'phone' => '+1 (555) 100-0003',
@@ -66,7 +66,7 @@ class UserSeeder extends Seeder
         User::create([
             'clinic_id' => $clinic->id,
             'name' => 'Maria Santos',
-            'email' => 'receptionist@getsmile.app',
+            'email' => 'receptionist@dentaris.app',
             'password' => Hash::make('password'),
             'role' => 'receptionist',
             'phone' => '+1 (555) 100-0004',

@@ -6,22 +6,44 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Laravel\Paddle\Billable;
 
 class Clinic extends Model
 {
-    use HasFactory;
+    use HasFactory, Billable;
 
     protected $fillable = [
         'name', 'slug', 'email', 'phone', 'address',
-        'logo_path', 'website', 'tax_id', 'settings', 'is_active',
+        'logo_path', 'website', 'tax_id', 'settings', 'is_active', 'trial_ends_at',
     ];
 
     protected $appends = ['logo_url'];
 
     protected $casts = [
-        'settings' => 'array',
-        'is_active' => 'boolean',
+        'settings'      => 'array',
+        'is_active'     => 'boolean',
+        'trial_ends_at' => 'datetime',
     ];
+
+    public function onLocalTrial(): bool
+    {
+        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
+    }
+
+    public function hasActiveAccess(): bool
+    {
+        return $this->onLocalTrial() || $this->subscribed('default');
+    }
+
+    public function activeUserCount(): int
+    {
+        return $this->users()->where('is_active', true)->count();
+    }
+
+    public function extraSeatCount(): int
+    {
+        return max(0, $this->activeUserCount() - 3);
+    }
 
     protected static function boot()
     {

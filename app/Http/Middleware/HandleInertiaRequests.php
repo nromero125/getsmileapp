@@ -7,32 +7,39 @@ use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
+        $clinic = $request->user()?->clinic;
+
+        $subscription = null;
+        if ($clinic) {
+            $trialDaysLeft = $clinic->trial_ends_at
+                ? max(0, (int) now()->diffInDays($clinic->trial_ends_at, false))
+                : 0;
+
+            $subscription = [
+                'on_trial'        => $clinic->onLocalTrial(),
+                'trial_days_left' => $trialDaysLeft,
+                'trial_ends_at'   => $clinic->trial_ends_at?->toDateString(),
+                'subscribed'      => $clinic->subscribed('default'),
+                'active'          => $clinic->hasActiveAccess(),
+                'active_users'    => $clinic->activeUserCount(),
+                'seats_included'  => 3,
+                'extra_seats'     => $clinic->extraSeatCount(),
+            ];
+        }
+
         return array_merge(parent::share($request), [
             'auth' => [
                 'user'   => $request->user(),
-                'clinic' => $request->user()?->clinic,
+                'clinic' => $clinic,
             ],
             'can' => [
                 'clinical' => (bool) $request->user()?->can('clinical'),
@@ -43,6 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn() => $request->session()->get('success'),
                 'error'   => fn() => $request->session()->get('error'),
             ],
+            'subscription' => $subscription,
         ]);
     }
 }

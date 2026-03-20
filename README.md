@@ -1,4 +1,4 @@
-# GetSmile — Dental Clinic SaaS
+# Dentaris — Dental Clinic SaaS
 
 A full-stack SaaS MVP for dental clinics built with Laravel 11, Inertia.js + Vue 3, and Tailwind CSS.
 
@@ -71,10 +71,10 @@ Visit: http://localhost:8000
 
 | Role          | Email                      | Password   |
 |---------------|----------------------------|------------|
-| Admin         | admin@getsmile.app         | password   |
-| Dentist       | james@getsmile.app         | password   |
-| Dentist       | emily@getsmile.app         | password   |
-| Receptionist  | receptionist@getsmile.app  | password   |
+| Admin         | admin@dentaris.app         | password   |
+| Dentist       | james@dentaris.app         | password   |
+| Dentist       | emily@dentaris.app         | password   |
+| Receptionist  | receptionist@dentaris.app  | password   |
 
 ## Project Structure
 

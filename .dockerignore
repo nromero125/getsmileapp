@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+
+# Laravel development
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+storage/logs/*.log
+bootstrap/cache/*.php
+
+# Tests
+tests
+phpunit.xml
+.phpunit.result.cache
+
+# Docker
+docker-compose*.yml
+Dockerfile
+docker/
+
+# Development
+.env.example
+.editorconfig
+.styleci.yml
+README.md
+CLAUDE.md
+
+# Build artifacts que se generarán dentro del contenedor
+# (public/build se copia desde el stage frontend)

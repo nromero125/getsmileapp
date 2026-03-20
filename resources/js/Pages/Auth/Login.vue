@@ -21,7 +21,7 @@ const submit = () => form.post(route('login'))
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
             </svg>
           </div>
-          <span class="font-display text-white font-semibold text-xl">GetSmile</span>
+          <span class="font-display text-white font-semibold text-xl">Dentaris</span>
         </div>
         <h1 class="font-display text-5xl font-bold text-white leading-tight mb-4">
           Gestión dental<br/>de primer<br/>nivel
@@ -41,7 +41,7 @@ const submit = () => form.post(route('login'))
 
         <!-- CTA registro en panel izquierdo -->
         <div class="pt-6 border-t border-white/10 mt-6">
-          <p class="text-navy-400 text-sm mb-3">¿Tu clínica aún no está en GetSmile?</p>
+          <p class="text-navy-400 text-sm mb-3">¿Tu clínica aún no está en Dentaris?</p>
           <Link :href="route('register')"
             class="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg">
             Registrar mi clínica
@@ -61,7 +61,7 @@ const submit = () => form.post(route('login'))
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
             </svg>
           </div>
-          <span class="font-display text-white font-semibold text-lg">GetSmile</span>
+          <span class="font-display text-white font-semibold text-lg">Dentaris</span>
         </div>
 
         <div class="bg-white dark:bg-navy-800 rounded-3xl p-8 shadow-card-lg">
@@ -98,7 +98,7 @@ const submit = () => form.post(route('login'))
           <!-- Divider -->
           <div class="flex items-center gap-3 my-5">
             <div class="flex-1 h-px bg-navy-100 dark:bg-navy-700" />
-            <span class="text-xs text-navy-400">¿nuevo en GetSmile?</span>
+            <span class="text-xs text-navy-400">¿nuevo en Dentaris?</span>
             <div class="flex-1 h-px bg-navy-100 dark:bg-navy-700" />
           </div>
 
@@ -110,8 +110,8 @@ const submit = () => form.post(route('login'))
           <div class="mt-5 p-4 bg-navy-50 dark:bg-navy-900 rounded-2xl text-xs text-navy-500">
             <p class="font-semibold text-navy-700 dark:text-navy-300 mb-2">Credenciales de prueba</p>
             <div class="space-y-1">
-              <p>Admin: <span class="font-mono text-teal-600">admin@getsmile.app</span></p>
-              <p>Dentista: <span class="font-mono text-teal-600">james@getsmile.app</span></p>
+              <p>Admin: <span class="font-mono text-teal-600">admin@dentaris.app</span></p>
+              <p>Dentista: <span class="font-mono text-teal-600">james@dentaris.app</span></p>
               <p>Contraseña: <span class="font-mono text-teal-600">password</span></p>
             </div>
           </div>
