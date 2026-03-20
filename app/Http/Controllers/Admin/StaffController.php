@@ -13,12 +13,24 @@ class StaffController extends Controller
 {
     public function index()
     {
-        $staff = User::where('clinic_id', auth()->user()->clinic_id)
+        $clinic = auth()->user()->clinic;
+
+        $staff = User::where('clinic_id', $clinic->id)
             ->orderBy('role')
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Admin/Staff/Index', ['staff' => $staff]);
+        $activeCount   = $staff->where('is_active', true)->count();
+        $seatsIncluded = 3;
+        $extraSeats    = max(0, $activeCount - $seatsIncluded);
+
+        return Inertia::render('Admin/Staff/Index', [
+            'staff'         => $staff,
+            'activeCount'   => $activeCount,
+            'seatsIncluded' => $seatsIncluded,
+            'extraSeats'    => $extraSeats,
+            'onTrial'       => $clinic->onLocalTrial(),
+        ]);
     }
 
     public function store(Request $request)

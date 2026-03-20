@@ -126,7 +126,14 @@ async function openCheckout() {
     if (props.isSandbox) {
       window.Paddle.Environment.set('sandbox')
     }
-    window.Paddle.Initialize({ token: props.clientToken })
+    window.Paddle.Initialize({
+      token: props.clientToken,
+      eventCallback(event) {
+        if (event.name === 'checkout.completed') {
+          window.location.href = route('dashboard')
+        }
+      },
+    })
 
     // Get checkout options from backend
     const { data } = await axios.post(route('subscription.checkout-url'))
@@ -134,14 +141,6 @@ async function openCheckout() {
     window.Paddle.Checkout.open({
       ...data,
       settings: { ...data.settings, displayMode: 'overlay', frameStyle: undefined },
-    })
-
-    window.Paddle.Update({
-      eventCallback(event) {
-        if (event.name === 'checkout.completed') {
-          window.location.href = route('dashboard')
-        }
-      },
     })
 
     loading.value = false
