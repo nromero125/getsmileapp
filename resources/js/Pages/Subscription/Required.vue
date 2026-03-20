@@ -91,7 +91,7 @@ async function openCheckout() {
     window.Paddle.Initialize({ token: props.clientToken })
 
     const { data } = await axios.post(route('subscription.checkout-url'))
-    window.location.href = data.url
+    window.Paddle.Checkout.open(data)
   } catch (e) {
     console.error(e)
     loading.value = false
