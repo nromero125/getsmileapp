@@ -21,7 +21,6 @@ phpunit.xml
 # Docker
 docker-compose*.yml
 Dockerfile
-docker/
 
 # Development
 .env.example
