@@ -77,11 +77,10 @@ class Clinic extends Model
 
         $createdCategories = [];
         foreach ($categories as $cat) {
-            $createdCategories[$cat['name']] = TreatmentCategory::create([
-                'clinic_id' => $this->id,
-                'name'      => $cat['name'],
-                'color'     => $cat['color'],
-            ]);
+            $createdCategories[$cat['name']] = TreatmentCategory::firstOrCreate(
+                ['clinic_id' => $this->id, 'name' => $cat['name']],
+                ['color' => $cat['color']]
+            );
         }
 
         $treatments = [
@@ -119,14 +118,15 @@ class Clinic extends Model
         ];
 
         foreach ($treatments as $t) {
-            Treatment::create([
-                'clinic_id'            => $this->id,
-                'treatment_category_id' => $createdCategories[$t['cat']]->id,
-                'name'                 => $t['name'],
-                'default_price'        => $t['price'],
-                'duration_minutes'     => $t['duration'],
-                'is_active'            => true,
-            ]);
+            Treatment::firstOrCreate(
+                ['clinic_id' => $this->id, 'name' => $t['name']],
+                [
+                    'treatment_category_id' => $createdCategories[$t['cat']]->id,
+                    'default_price'         => $t['price'],
+                    'duration_minutes'      => $t['duration'],
+                    'is_active'             => true,
+                ]
+            );
         }
 
         $diagnoses = [
@@ -149,7 +149,10 @@ class Clinic extends Model
         ];
 
         foreach ($diagnoses as $d) {
-            DiagnosisCatalog::create([...$d, 'clinic_id' => $this->id]);
+            DiagnosisCatalog::firstOrCreate(
+                ['clinic_id' => $this->id, 'code' => $d['code']],
+                [...$d, 'clinic_id' => $this->id]
+            );
         }
     }
 
