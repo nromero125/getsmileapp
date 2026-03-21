@@ -8,6 +8,7 @@ const props = defineProps({
   patients: Array,
   treatments: Array,
   patient_id: [String, Number],
+  ncfSequences: Object,
 })
 
 const form = useForm({
@@ -15,9 +16,27 @@ const form = useForm({
   invoice_date: new Date().toISOString().slice(0, 10),
   due_date: '',
   notes: '',
+  ncf_type: '',
   discount_percent: 0,
   tax_percent: 0,
   items: [{ description: '', quantity: 1, unit_price: 0, treatment_id: null, discount: 0 }],
+})
+
+const ncfTypes = [
+  { value: 'B01', label: 'B01 — Crédito Fiscal' },
+  { value: 'B02', label: 'B02 — Consumo' },
+]
+
+const selectedNcfAvailable = computed(() => {
+  if (!form.ncf_type) return true
+  const seq = props.ncfSequences?.[form.ncf_type]
+  return seq && seq.remaining > 0
+})
+
+const ncfRemaining = computed(() => {
+  if (!form.ncf_type) return null
+  const seq = props.ncfSequences?.[form.ncf_type]
+  return seq ? seq.remaining : 0
 })
 
 const addItem = () => form.items.push({ description: '', quantity: 1, unit_price: 0, treatment_id: null, discount: 0 })
@@ -37,7 +56,7 @@ const discountAmt = computed(() => subtotal.value * (form.discount_percent / 100
 const taxAmt = computed(() => (subtotal.value - discountAmt.value) * (form.tax_percent / 100))
 const total = computed(() => subtotal.value - discountAmt.value + taxAmt.value)
 
-const formatCurrency = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const formatCurrency = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 
 const submit = () => form.post(route('invoices.store'))
 </script>
@@ -70,6 +89,28 @@ const submit = () => form.post(route('invoices.store'))
           <div>
             <label class="label">Fecha de Vencimiento</label>
             <input v-model="form.due_date" type="date" class="input" />
+          </div>
+
+          <!-- NCF -->
+          <div class="sm:col-span-3 border-t border-navy-100 dark:border-navy-700 pt-4">
+            <label class="label">Número de Comprobante Fiscal (NCF)</label>
+            <div class="flex flex-wrap items-center gap-3">
+              <select v-model="form.ncf_type" class="input max-w-xs">
+                <option value="">Sin NCF</option>
+                <option
+                  v-for="t in ncfTypes" :key="t.value" :value="t.value"
+                  :disabled="!ncfSequences?.[t.value]">
+                  {{ t.label }}{{ !ncfSequences?.[t.value] ? ' (no configurado)' : '' }}
+                </option>
+              </select>
+              <span v-if="form.ncf_type && selectedNcfAvailable" class="text-xs text-navy-400">
+                Quedan {{ ncfRemaining }} comprobantes disponibles
+              </span>
+              <span v-if="form.ncf_type && !selectedNcfAvailable" class="text-xs text-red-500 font-medium">
+                ⚠ Secuencia agotada. Configura una nueva en Ajustes de Clínica.
+              </span>
+            </div>
+            <p v-if="form.errors.ncf_type" class="text-xs text-red-500 mt-1">{{ form.errors.ncf_type }}</p>
           </div>
         </div>
       </div>

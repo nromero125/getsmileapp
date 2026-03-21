@@ -186,7 +186,7 @@ const doDeleteCat      = () => {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const fmt     = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const fmt     = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 
 const stockClass = (item) => {
   const s = parseFloat(item.stock), m = parseFloat(item.min_stock)

@@ -59,6 +59,13 @@
     <div class="invoice-title">
       <h1>FACTURA</h1>
       <div class="num">{{ $invoice->invoice_number }}</div>
+      @if($invoice->ncf)
+      <div style="margin-top:8px;background:rgba(0,191,166,0.15);border:1px solid rgba(0,191,166,0.4);border-radius:6px;padding:6px 10px;display:inline-block">
+        <div style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#94A3B8;margin-bottom:2px">NCF</div>
+        <div style="font-size:13px;font-weight:bold;color:#00BFA6;letter-spacing:1.5px">{{ $invoice->ncf }}</div>
+        <div style="font-size:9px;color:#94A3B8;margin-top:1px">{{ $invoice->ncf_type === 'B01' ? 'Crédito Fiscal' : 'Consumo' }}</div>
+      </div>
+      @endif
     </div>
   </div>
   <div class="header-bottom">
@@ -67,7 +74,7 @@
       <div class="value">{{ $clinic->name }}</div>
       @if($clinic->address)<div class="value" style="font-size:11px;color:#94A3B8;margin-top:2px">{{ $clinic->address }}</div>@endif
       @if($clinic->phone)<div class="value" style="font-size:11px;color:#94A3B8">{{ $clinic->phone }}</div>@endif
-      @if($clinic->tax_id)<div class="value" style="font-size:11px;color:#94A3B8">RFC: {{ $clinic->tax_id }}</div>@endif
+      @if($clinic->tax_id)<div class="value" style="font-size:11px;color:#94A3B8">RNC: {{ $clinic->tax_id }}</div>@endif
     </div>
     <div style="text-align:right">
       <div class="label">Fecha de emisión</div>
@@ -91,12 +98,19 @@
     <div style="text-align:right">
       <div class="label" style="text-align:right;margin-bottom:6px">Estado</div>
       @php
-        $statusLabels = ['paid' => 'Pagada', 'pending' => 'Pendiente', 'partial' => 'Pago parcial', 'cancelled' => 'Cancelada', 'draft' => 'Borrador'];
+        $statusLabels = ['paid' => 'Pagada', 'pending' => 'Pendiente', 'partial' => 'Pago parcial', 'cancelled' => 'Cancelada', 'draft' => 'Borrador', 'refunded' => 'REEMBOLSADA', 'voided' => 'ANULADA'];
       @endphp
       <span class="status-badge status-{{ $invoice->status }}">{{ $statusLabels[$invoice->status] ?? strtoupper($invoice->status) }}</span>
+      @if($invoice->ncf_void)
+      <div style="margin-top:8px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;display:inline-block">
+        <div style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#9CA3AF;margin-bottom:2px">NCF Anulación</div>
+        <div style="font-size:13px;font-weight:bold;color:#EF4444;letter-spacing:1.5px">{{ $invoice->ncf_void }}</div>
+        <div style="font-size:9px;color:#9CA3AF;margin-top:1px">B04 — Nota de Crédito</div>
+      </div>
+      @endif
       <br><br>
       <div class="label" style="text-align:right;margin-bottom:4px">Saldo pendiente</div>
-      <div style="font-size:20px;font-weight:bold;color:#0F1F3D">${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</div>
+      <div style="font-size:20px;font-weight:bold;color:#0F1F3D">RD${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</div>
     </div>
   </div>
 
@@ -114,8 +128,8 @@
       <tr>
         <td>{{ $item->description }}</td>
         <td class="right">{{ $item->quantity }}</td>
-        <td class="right">${{ number_format($item->unit_price, 2) }}</td>
-        <td class="right">${{ number_format($item->total, 2) }}</td>
+        <td class="right">RD${{ number_format($item->unit_price, 2) }}</td>
+        <td class="right">RD${{ number_format($item->total, 2) }}</td>
       </tr>
       @endforeach
     </tbody>
@@ -123,19 +137,19 @@
 
   <div class="totals">
     <table>
-      <tr><td style="color:#6B7280">Subtotal</td><td style="text-align:right">${{ number_format($invoice->subtotal, 2) }}</td></tr>
+      <tr><td style="color:#6B7280">Subtotal</td><td style="text-align:right">RD${{ number_format($invoice->subtotal, 2) }}</td></tr>
       @if($invoice->discount_amount > 0)
-      <tr><td style="color:#059669">Descuento ({{ $invoice->discount_percent }}%)</td><td style="text-align:right;color:#059669">-${{ number_format($invoice->discount_amount, 2) }}</td></tr>
+      <tr><td style="color:#059669">Descuento ({{ $invoice->discount_percent }}%)</td><td style="text-align:right;color:#059669">-RD${{ number_format($invoice->discount_amount, 2) }}</td></tr>
       @endif
       @if($invoice->tax_amount > 0)
-      <tr><td style="color:#6B7280">Impuesto ({{ $invoice->tax_percent }}%)</td><td style="text-align:right">${{ number_format($invoice->tax_amount, 2) }}</td></tr>
+      <tr><td style="color:#6B7280">Impuesto ({{ $invoice->tax_percent }}%)</td><td style="text-align:right">RD${{ number_format($invoice->tax_amount, 2) }}</td></tr>
       @endif
       @if($invoice->amount_paid > 0)
-      <tr><td style="color:#059669">Pagado</td><td style="text-align:right;color:#059669">-${{ number_format($invoice->amount_paid, 2) }}</td></tr>
+      <tr><td style="color:#059669">Pagado</td><td style="text-align:right;color:#059669">-RD${{ number_format($invoice->amount_paid, 2) }}</td></tr>
       @endif
       <tr class="total-row">
         <td>Saldo pendiente</td>
-        <td style="text-align:right">${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</td>
+        <td style="text-align:right">RD${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</td>
       </tr>
     </table>
   </div>

@@ -5,7 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import Modal from '@/Components/Modal.vue'
 import ConfirmModal from '@/Components/ConfirmModal.vue'
 import StatusBadge from '@/Components/StatusBadge.vue'
-import { ArrowLeftIcon, ArrowDownTrayIcon, PlusIcon, CalendarDaysIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { ArrowLeftIcon, ArrowDownTrayIcon, PlusIcon, CalendarDaysIcon, TrashIcon, NoSymbolIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({ invoice: Object })
 const can = usePage().props.can
@@ -25,7 +25,7 @@ const recordPayment = () => {
   })
 }
 
-const formatCurrency = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const formatCurrency = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'numeric' }) : '—'
 
 const balanceDue = () => (parseFloat(props.invoice.total) - parseFloat(props.invoice.amount_paid)).toFixed(2)
@@ -77,6 +77,27 @@ const doDeletePlan = () => {
 
 const installmentStatusLabel = { paid: 'Pagada', overdue: 'Vencida', pending: 'Pendiente' }
 const installmentStatusClass = { paid: 'badge-teal', overdue: 'bg-red-100 text-red-600', pending: 'badge-gray' }
+
+const confirmVoid = ref(false)
+const voidInvoice = () => {
+  router.post(route('invoices.void', props.invoice.id), {}, {
+    onSuccess: () => { confirmVoid.value = false }
+  })
+}
+
+const showRefundModal = ref(false)
+const refundForm = useForm({
+  amount: '',
+  payment_date: new Date().toISOString().slice(0, 10),
+  method: 'cash',
+  reference: '',
+  notes: '',
+})
+const submitRefund = () => {
+  refundForm.post(route('invoices.refund', props.invoice.id), {
+    onSuccess: () => { showRefundModal.value = false; refundForm.reset() }
+  })
+}
 </script>
 
 <template>
@@ -105,6 +126,16 @@ const installmentStatusClass = { paid: 'badge-teal', overdue: 'bg-red-100 text-r
             <StatusBadge :status="invoice.status" type="invoice" />
             <p class="text-sm text-navy-500 mt-2">Fecha: <span class="text-navy-700 dark:text-navy-300">{{ formatDate(invoice.invoice_date) }}</span></p>
             <p v-if="invoice.due_date" class="text-sm text-navy-500">Vencimiento: <span class="text-navy-700 dark:text-navy-300">{{ formatDate(invoice.due_date) }}</span></p>
+            <div v-if="invoice.ncf" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700">
+              <span class="text-xs text-navy-400">NCF</span>
+              <span class="text-sm font-mono font-bold text-navy-900 dark:text-white tracking-wider">{{ invoice.ncf }}</span>
+              <span class="text-xs text-navy-400">({{ invoice.ncf_type === 'B01' ? 'Crédito Fiscal' : 'Consumo' }})</span>
+            </div>
+            <div v-if="invoice.ncf_void" class="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <span class="text-xs text-red-400">NCF Anulación</span>
+              <span class="text-sm font-mono font-bold text-red-600 dark:text-red-400 tracking-wider">{{ invoice.ncf_void }}</span>
+              <span class="text-xs text-red-400">(B04)</span>
+            </div>
           </div>
         </div>
       </div>
@@ -145,12 +176,18 @@ const installmentStatusClass = { paid: 'badge-teal', overdue: 'bg-red-100 text-r
             <div><p class="text-xs text-navy-400 uppercase tracking-wide mb-1">Pagado</p><p class="text-lg font-bold text-green-600">{{ formatCurrency(invoice.amount_paid) }}</p></div>
             <div><p class="text-xs text-navy-400 uppercase tracking-wide mb-1">Saldo</p><p :class="['text-lg font-bold', balanceDue() > 0 ? 'text-red-500' : 'text-green-600']">{{ formatCurrency(balanceDue()) }}</p></div>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 flex-wrap">
             <a :href="route('invoices.pdf', invoice.id)" target="_blank" class="btn-outline">
               <ArrowDownTrayIcon class="w-4 h-4" /> PDF
             </a>
-            <button v-if="can.billing && invoice.status !== 'paid'" @click="showPaymentModal = true" class="btn-primary">
+            <button v-if="can.billing && !['paid','voided','refunded'].includes(invoice.status)" @click="showPaymentModal = true" class="btn-primary">
               <PlusIcon class="w-4 h-4" /> Registrar Pago
+            </button>
+            <button v-if="can.billing && invoice.status === 'paid'" @click="showRefundModal = true" class="btn-outline text-purple-600 border-purple-300 hover:bg-purple-50">
+              <ArrowDownTrayIcon class="w-4 h-4 rotate-180" /> Reembolsar
+            </button>
+            <button v-if="can.billing && !['paid','voided'].includes(invoice.status)" @click="confirmVoid = true" class="btn-danger">
+              <NoSymbolIcon class="w-4 h-4" /> Anular
             </button>
           </div>
         </div>
@@ -287,6 +324,58 @@ const installmentStatusClass = { paid: 'badge-teal', overdue: 'bg-red-100 text-r
       confirm-text="Eliminar"
       @confirm="doDeletePlan"
       @cancel="confirmDeletePlan = false"
+    />
+
+    <!-- Refund Modal -->
+    <Modal :show="showRefundModal" title="Registrar Reembolso" size="sm" @close="showRefundModal = false">
+      <form @submit.prevent="submitRefund" class="space-y-4">
+        <p class="text-sm text-navy-500 dark:text-navy-400">
+          La factura pasará a estado <strong>Reembolsada</strong>. Luego podrás anularla con NCF B04.
+        </p>
+        <div>
+          <label class="label">Monto a reembolsar *</label>
+          <input v-model="refundForm.amount" type="number" step="0.01" :max="invoice.amount_paid" min="0.01" class="input" required />
+          <p class="text-xs text-navy-400 mt-1">Máximo: {{ formatCurrency(invoice.amount_paid) }}</p>
+          <p v-if="refundForm.errors.amount" class="text-xs text-red-500 mt-1">{{ refundForm.errors.amount }}</p>
+        </div>
+        <div>
+          <label class="label">Fecha *</label>
+          <input v-model="refundForm.payment_date" type="date" class="input" required />
+        </div>
+        <div>
+          <label class="label">Método *</label>
+          <select v-model="refundForm.method" class="input">
+            <option value="cash">Efectivo</option>
+            <option value="card">Tarjeta</option>
+            <option value="transfer">Transferencia</option>
+            <option value="insurance">Seguro</option>
+            <option value="other">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label class="label">Referencia</label>
+          <input v-model="refundForm.reference" type="text" class="input" />
+        </div>
+        <div>
+          <label class="label">Motivo</label>
+          <input v-model="refundForm.notes" type="text" class="input" placeholder="Tratamiento cancelado, cobro incorrecto…" />
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" @click="showRefundModal = false" class="btn-outline">Cancelar</button>
+          <button type="submit" class="btn-primary bg-purple-600 hover:bg-purple-700" :disabled="refundForm.processing">
+            Registrar Reembolso
+          </button>
+        </div>
+      </form>
+    </Modal>
+
+    <ConfirmModal
+      :show="confirmVoid"
+      title="Anular factura"
+      :message="`¿Anular la factura ${invoice.invoice_number}? Esta acción no se puede deshacer. La factura quedará marcada como anulada${invoice.ncf ? ' y se emitirá un NCF B04 de anulación' : ''}.`"
+      confirm-text="Anular factura"
+      @confirm="voidInvoice"
+      @cancel="confirmVoid = false"
     />
 
     <!-- Payment Modal -->

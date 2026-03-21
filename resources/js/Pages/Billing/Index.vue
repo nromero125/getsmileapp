@@ -21,7 +21,7 @@ const doSearch = () => {
   router.get(route('invoices.index'), { search: search.value, status: status.value }, { preserveState: true, replace: true })
 }
 
-const formatCurrency = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const formatCurrency = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
 </script>
 

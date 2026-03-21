@@ -21,7 +21,7 @@ const props = defineProps({
 let revenueChart = null
 let appointmentsChart = null
 
-const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
+const formatCurrency = (val) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(val || 0)
 const formatTime = (dateStr) => new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' })
 
@@ -56,7 +56,7 @@ onMounted(() => {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-              y: { grid: { color: 'rgba(15,31,61,0.05)' }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k', color: '#6B7280', font: { size: 11 } }, border: { display: false } },
+              y: { grid: { color: 'rgba(15,31,61,0.05)' }, ticks: { callback: v => 'RD$' + (v/1000).toFixed(0) + 'k', color: '#6B7280', font: { size: 11 } }, border: { display: false } },
               x: { grid: { display: false }, ticks: { color: '#6B7280', font: { size: 11 } }, border: { display: false } }
             }
           }

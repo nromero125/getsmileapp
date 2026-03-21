@@ -28,7 +28,7 @@ const subtotal    = computed(() => form.items.reduce((s, i) => s + (i.unit_price
 const discountAmt = computed(() => subtotal.value * (form.discount_percent / 100))
 const taxAmt      = computed(() => (subtotal.value - discountAmt.value) * (form.tax_percent / 100))
 const total       = computed(() => subtotal.value - discountAmt.value + taxAmt.value)
-const fmt         = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const fmt         = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 
 const submit = () => form.post(route('quotes.store'))
 </script>

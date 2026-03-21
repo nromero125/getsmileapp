@@ -12,6 +12,7 @@ use App\Http\Controllers\Billing\QuoteController;
 use App\Http\Controllers\Billing\SubscriptionController;
 use App\Http\Controllers\Inventory\InventoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Http\Controllers\Patient\PatientFileController;
 use App\Http\Controllers\ProfileController;
@@ -40,6 +41,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Reports
+        Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -87,6 +91,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/invoices/{invoice}/installments/{installment}/pay', [InvoiceController::class, 'payInstallment'])->name('invoices.installments.pay');
             Route::delete('/invoices/{invoice}/installments', [InvoiceController::class, 'destroyInstallmentPlan'])->name('invoices.installments.destroy');
         });
+        Route::post('/invoices/{invoice}/refund', [InvoiceController::class, 'refund'])
+            ->middleware('can:billing')->name('invoices.refund');
+        Route::post('/invoices/{invoice}/void', [InvoiceController::class, 'void'])
+            ->middleware('can:billing')->name('invoices.void');
         Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])->name('invoices.pdf');
         Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
 
@@ -116,6 +124,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware('can:admin')->group(function () {
             Route::get('/clinic/settings', [ClinicController::class, 'edit'])->name('clinic.settings');
             Route::put('/clinic/settings', [ClinicController::class, 'update'])->name('clinic.settings.update');
+            Route::post('/clinic/ncf-sequences', [ClinicController::class, 'storeNcfSequence'])->name('clinic.ncf-sequences.store');
+            Route::put('/clinic/ncf-sequences/{sequence}', [ClinicController::class, 'updateNcfSequence'])->name('clinic.ncf-sequences.update');
+            Route::delete('/clinic/ncf-sequences/{sequence}', [ClinicController::class, 'destroyNcfSequence'])->name('clinic.ncf-sequences.destroy');
             Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
             Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
             Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');

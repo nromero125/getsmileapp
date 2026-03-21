@@ -104,7 +104,7 @@ const doDeleteCat = () => {
   })
 }
 
-const fmt = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v)
+const fmt = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v)
 </script>
 
 <template>

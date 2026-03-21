@@ -10,14 +10,16 @@ const appointmentColors = {
   no_show:     'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
 }
 const invoiceColors = {
-  draft:    'bg-gray-100 text-gray-700',
-  pending:  'bg-amber-100 text-amber-700',
-  partial:  'bg-blue-100 text-blue-700',
-  paid:     'bg-green-100 text-green-700',
-  cancelled:'bg-red-100 text-red-700',
+  draft:     'bg-gray-100 text-gray-700',
+  pending:   'bg-amber-100 text-amber-700',
+  partial:   'bg-blue-100 text-blue-700',
+  paid:      'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
+  refunded:  'bg-purple-100 text-purple-700',
+  voided:    'bg-gray-200 text-gray-500 line-through',
 }
 const colorMap = props.type === 'invoice' ? invoiceColors : appointmentColors
-const dotColors = { scheduled:'bg-blue-400', confirmed:'bg-teal-400', in_progress:'bg-amber-400 animate-pulse', completed:'bg-green-400', cancelled:'bg-red-400', no_show:'bg-gray-400', paid:'bg-green-400', pending:'bg-amber-400', partial:'bg-blue-400', draft:'bg-gray-400' }
+const dotColors = { scheduled:'bg-blue-400', confirmed:'bg-teal-400', in_progress:'bg-amber-400 animate-pulse', completed:'bg-green-400', cancelled:'bg-red-400', no_show:'bg-gray-400', paid:'bg-green-400', pending:'bg-amber-400', partial:'bg-blue-400', draft:'bg-gray-400', refunded:'bg-purple-400', voided:'bg-gray-400' }
 
 const labels = {
   scheduled:   'Programada',
@@ -30,6 +32,8 @@ const labels = {
   pending:     'Pendiente',
   partial:     'Pago parcial',
   paid:        'Pagada',
+  refunded:    'Reembolsada',
+  voided:      'Anulada',
 }
 </script>
 

@@ -15,7 +15,7 @@ const filtered = computed(() =>
     : props.invoices.filter(i => i.bucket === selectedBucket.value)
 )
 
-const fmt     = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const fmt     = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
 
 const buckets = [

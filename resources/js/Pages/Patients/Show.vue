@@ -126,7 +126,7 @@ const formatFileSize = (bytes) => {
   return bytes > 1048576 ? (bytes / 1048576).toFixed(1) + ' MB' : (bytes / 1024).toFixed(0) + ' KB'
 }
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
-const formatCurrency = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD' }).format(v || 0)
+const formatCurrency = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 </script>
 
 <template>

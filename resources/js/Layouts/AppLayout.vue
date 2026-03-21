@@ -5,7 +5,7 @@ import {
   HomeIcon, UsersIcon, CalendarIcon, CreditCardIcon,
   CogIcon, UserGroupIcon, Bars3Icon, SunIcon, MoonIcon,
   ChevronDownIcon, UserCircleIcon, ArrowRightOnRectangleIcon, BeakerIcon, ArchiveBoxIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon, ChartBarIcon
 } from '@heroicons/vue/24/outline'
 
 const page = usePage()
@@ -29,6 +29,7 @@ const navigation = [
   { name: 'Citas',        href: route('appointments.index'),    icon: CalendarIcon },
   { name: 'Facturación',  href: route('invoices.index'),        icon: CreditCardIcon },
   { name: 'Inventario',   href: route('inventory.index'),       icon: ArchiveBoxIcon },
+  { name: 'Reportes',     href: route('reports.index'),         icon: ChartBarIcon },
   { name: 'Tratamientos', href: route('treatments.index'),       icon: BeakerIcon,                adminOnly: true },
   { name: 'Diagnósticos', href: route('diagnosis-catalog.index'), icon: ClipboardDocumentListIcon, adminOnly: true },
   { name: 'Personal',    href: route('staff.index'),             icon: UserGroupIcon,             adminOnly: true },

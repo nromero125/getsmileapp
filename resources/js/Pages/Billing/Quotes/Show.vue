@@ -23,7 +23,7 @@ const setStatus = () => {
 const doConvert = () => router.post(route('quotes.convert', props.quote.id))
 const doDelete  = () => router.delete(route('quotes.destroy', props.quote.id))
 
-const fmt     = (v) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v || 0)
+const fmt     = (v) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(v || 0)
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
 
 const statusColors = {

@@ -85,36 +85,36 @@ class Clinic extends Model
 
         $treatments = [
             // Preventiva
-            ['cat' => 'Preventiva',   'name' => 'Limpieza Dental',                    'price' => 120,  'duration' => 60],
-            ['cat' => 'Preventiva',   'name' => 'Examen Dental',                      'price' => 80,   'duration' => 30],
-            ['cat' => 'Preventiva',   'name' => 'Radiografía Dental (Completa)',       'price' => 150,  'duration' => 30],
-            ['cat' => 'Preventiva',   'name' => 'Tratamiento de Flúor',               'price' => 45,   'duration' => 15],
-            ['cat' => 'Preventiva',   'name' => 'Sellantes (por diente)',              'price' => 60,   'duration' => 15],
+            ['cat' => 'Preventiva',   'name' => 'Limpieza Dental',                    'price' => 2500,  'duration' => 60],
+            ['cat' => 'Preventiva',   'name' => 'Examen Dental',                      'price' => 1500,  'duration' => 30],
+            ['cat' => 'Preventiva',   'name' => 'Radiografía Dental (Completa)',       'price' => 2000,  'duration' => 30],
+            ['cat' => 'Preventiva',   'name' => 'Tratamiento de Flúor',               'price' => 800,   'duration' => 15],
+            ['cat' => 'Preventiva',   'name' => 'Sellantes (por diente)',              'price' => 1200,  'duration' => 15],
             // Restaurativa
-            ['cat' => 'Restaurativa', 'name' => 'Resina Compuesta',                   'price' => 180,  'duration' => 45],
-            ['cat' => 'Restaurativa', 'name' => 'Amalgama',                           'price' => 120,  'duration' => 45],
-            ['cat' => 'Restaurativa', 'name' => 'Corona Dental (PFM)',                'price' => 1100, 'duration' => 90],
-            ['cat' => 'Restaurativa', 'name' => 'Corona Dental (Zirconia)',           'price' => 1400, 'duration' => 90],
-            ['cat' => 'Restaurativa', 'name' => 'Puente Dental (3 piezas)',           'price' => 2800, 'duration' => 120],
-            ['cat' => 'Restaurativa', 'name' => 'Prótesis Dental (Completa)',         'price' => 1800, 'duration' => 90],
+            ['cat' => 'Restaurativa', 'name' => 'Resina Compuesta',                   'price' => 3500,  'duration' => 45],
+            ['cat' => 'Restaurativa', 'name' => 'Amalgama',                           'price' => 2500,  'duration' => 45],
+            ['cat' => 'Restaurativa', 'name' => 'Corona Dental (PFM)',                'price' => 18000, 'duration' => 90],
+            ['cat' => 'Restaurativa', 'name' => 'Corona Dental (Zirconia)',           'price' => 25000, 'duration' => 90],
+            ['cat' => 'Restaurativa', 'name' => 'Puente Dental (3 piezas)',           'price' => 50000, 'duration' => 120],
+            ['cat' => 'Restaurativa', 'name' => 'Prótesis Dental (Completa)',         'price' => 35000, 'duration' => 90],
             // Ortodoncia
-            ['cat' => 'Ortodoncia',   'name' => 'Brackets Tradicionales',             'price' => 5500, 'duration' => 60],
-            ['cat' => 'Ortodoncia',   'name' => 'Alineadores Transparentes',          'price' => 6500, 'duration' => 60],
-            ['cat' => 'Ortodoncia',   'name' => 'Retenedor',                          'price' => 400,  'duration' => 30],
+            ['cat' => 'Ortodoncia',   'name' => 'Brackets Tradicionales',             'price' => 45000, 'duration' => 60],
+            ['cat' => 'Ortodoncia',   'name' => 'Alineadores Transparentes',          'price' => 80000, 'duration' => 60],
+            ['cat' => 'Ortodoncia',   'name' => 'Retenedor',                          'price' => 8000,  'duration' => 30],
             // Cirugía Oral
-            ['cat' => 'Cirugía Oral', 'name' => 'Extracción Simple',                  'price' => 200,  'duration' => 30],
-            ['cat' => 'Cirugía Oral', 'name' => 'Extracción de Muela del Juicio',     'price' => 400,  'duration' => 60],
-            ['cat' => 'Cirugía Oral', 'name' => 'Implante Dental',                    'price' => 3500, 'duration' => 90],
+            ['cat' => 'Cirugía Oral', 'name' => 'Extracción Simple',                  'price' => 2000,  'duration' => 30],
+            ['cat' => 'Cirugía Oral', 'name' => 'Extracción de Muela del Juicio',     'price' => 6000,  'duration' => 60],
+            ['cat' => 'Cirugía Oral', 'name' => 'Implante Dental',                    'price' => 60000, 'duration' => 90],
             // Endodoncia
-            ['cat' => 'Endodoncia',   'name' => 'Tratamiento de Conducto (1 conducto)', 'price' => 700,  'duration' => 90],
-            ['cat' => 'Endodoncia',   'name' => 'Tratamiento de Conducto (3 conductos)', 'price' => 1100, 'duration' => 120],
+            ['cat' => 'Endodoncia',   'name' => 'Tratamiento de Conducto (1 conducto)', 'price' => 8000,  'duration' => 90],
+            ['cat' => 'Endodoncia',   'name' => 'Tratamiento de Conducto (3 conductos)', 'price' => 15000, 'duration' => 120],
             // Estética
-            ['cat' => 'Estética',     'name' => 'Blanqueamiento Dental (Consultorio)', 'price' => 450,  'duration' => 90],
-            ['cat' => 'Estética',     'name' => 'Carilla de Porcelana',               'price' => 1200, 'duration' => 90],
-            ['cat' => 'Estética',     'name' => 'Diseño de Sonrisa',                  'price' => 4500, 'duration' => 120],
+            ['cat' => 'Estética',     'name' => 'Blanqueamiento Dental (Consultorio)', 'price' => 8000,  'duration' => 90],
+            ['cat' => 'Estética',     'name' => 'Carilla de Porcelana',               'price' => 20000, 'duration' => 90],
+            ['cat' => 'Estética',     'name' => 'Diseño de Sonrisa',                  'price' => 80000, 'duration' => 120],
             // Periodoncia
-            ['cat' => 'Periodoncia',  'name' => 'Limpieza Profunda (RAR)',             'price' => 350,  'duration' => 60],
-            ['cat' => 'Periodoncia',  'name' => 'Cirugía de Encía',                   'price' => 1200, 'duration' => 90],
+            ['cat' => 'Periodoncia',  'name' => 'Limpieza Profunda (RAR)',             'price' => 5000,  'duration' => 60],
+            ['cat' => 'Periodoncia',  'name' => 'Cirugía de Encía',                   'price' => 20000, 'duration' => 90],
         ];
 
         foreach ($treatments as $t) {

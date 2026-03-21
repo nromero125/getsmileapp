@@ -100,6 +100,7 @@ const loading = ref(false)
 const planFeatures = [
   'Pacientes y expedientes ilimitados',
   'Agenda y citas',
+  'Confirmaciones de cita por correo al paciente',
   'Odontograma digital',
   'Facturación y cotizaciones',
   'Inventario',

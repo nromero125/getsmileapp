@@ -202,7 +202,7 @@ const stats = [
 
           <!-- Trust row -->
           <div class="flex flex-wrap gap-x-6 gap-y-2">
-            <span v-for="item in ['Sin tarjeta de crédito', 'Cancela cuando quieras', 'Configuración en 15 min']" :key="item"
+            <span v-for="item in ['Sin cobro durante el período de prueba', 'Cancela cuando quieras', 'Configuración en 15 min']" :key="item"
               class="flex items-center gap-1.5 text-sm" style="color:#94a3b8">
               <svg class="w-3.5 h-3.5 flex-shrink-0" style="color:#00BFA6" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
@@ -219,7 +219,7 @@ const stats = [
     </section>
 
     <!-- ═══ STATS ═════════════════════════════════════════════════════════════ -->
-    <section class="bg-white py-12 border-b border-gray-100">
+   <!--  <section class="bg-white py-12 border-b border-gray-100">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div v-for="stat in stats" :key="stat.value" class="p-4">
@@ -228,7 +228,7 @@ const stats = [
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- ═══ FEATURES ══════════════════════════════════════════════════════════ -->
     <section id="caracteristicas" class="py-24 bg-white">
@@ -426,6 +426,7 @@ const stats = [
                 '3 usuarios incluidos',
                 'Facturación, cotizaciones y cuotas',
                 'Odontograma + catálogo de diagnósticos',
+                'Confirmaciones de cita por correo al paciente',
                 'Inventario de materiales',
                 'Reportes y dashboard',
                 'Soporte por email',
@@ -442,7 +443,7 @@ const stats = [
               style="background:#00BFA6; color:white">
               Empezar gratis — 14 días
             </Link>
-            <p class="text-center text-xs mt-3" style="color:#475569">Sin tarjeta de crédito</p>
+            <p class="text-center text-xs mt-3" style="color:#475569">Sin cobro hasta terminar el período de prueba</p>
           </div>
 
           <!-- Add-ons -->
@@ -580,7 +581,7 @@ const stats = [
             Iniciar sesión
           </Link>
         </div>
-        <p class="mt-6 text-sm" style="color:#475569">Sin tarjeta de crédito · Cancela cuando quieras · Soporte incluido</p>
+        <p class="mt-6 text-sm" style="color:#475569">14 días gratis · Cancela cuando quieras · Soporte incluido</p>
       </div>
     </section>
 

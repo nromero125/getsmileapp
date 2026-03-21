@@ -208,7 +208,7 @@ const getTreatmentDuration = () => {
                 <input type="checkbox" :value="t.id" v-model="form.treatment_ids" @change="getTreatmentDuration"
                   class="rounded text-teal-500 focus:ring-teal-500" />
                 <span class="text-sm text-navy-700">{{ t.name }}</span>
-                <span class="text-xs text-navy-400 ml-auto">${{ t.default_price }}</span>
+                <span class="text-xs text-navy-400 ml-auto">RD${{ t.default_price.toLocaleString('es-DO') }}</span>
               </label>
             </div>
           </div>

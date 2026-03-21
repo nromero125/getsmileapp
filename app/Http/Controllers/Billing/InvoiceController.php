@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\InvoiceInstallment;
 use App\Models\InvoiceItem;
+use App\Models\NcfSequence;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\Treatment;
@@ -48,10 +49,26 @@ class InvoiceController extends Controller
         $patients  = Patient::where('clinic_id', $clinicId)->get(['id','first_name','last_name']);
         $treatments = Treatment::where('clinic_id', $clinicId)->where('is_active', true)->get(['id','name','default_price']);
 
+        $today = now()->toDateString();
+        $ncfSequences = NcfSequence::where('clinic_id', $clinicId)
+            ->where('is_active', true)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', $today);
+            })
+            ->get()
+            ->filter(fn($s) => !$s->is_exhausted)
+            ->map(fn($s) => [
+                'type'      => $s->type,
+                'remaining' => $s->remaining,
+                'next_ncf'  => $s->next_ncf,
+            ])
+            ->keyBy('type');
+
         return Inertia::render('Billing/Create', [
-            'patients'   => $patients,
-            'treatments' => $treatments,
-            'patient_id' => $request->patient_id,
+            'patients'     => $patients,
+            'treatments'   => $treatments,
+            'patient_id'   => $request->patient_id,
+            'ncfSequences' => $ncfSequences,
         ]);
     }
 
@@ -62,6 +79,7 @@ class InvoiceController extends Controller
             'invoice_date'=> 'required|date',
             'due_date'    => 'nullable|date',
             'notes'       => 'nullable|string',
+            'ncf_type'    => 'nullable|in:B01,B02',
             'items'       => 'required|array|min:1',
             'items.*.description' => 'required|string',
             'items.*.quantity'    => 'required|integer|min:1',
@@ -84,10 +102,23 @@ class InvoiceController extends Controller
         $taxAmt      = round(($subtotal - $discountAmt) * $taxPct / 100, 2);
         $total       = $subtotal - $discountAmt + $taxAmt;
 
+        $ncfType = $validated['ncf_type'] ?? null;
+        $ncf     = null;
+
+        if ($ncfType) {
+            $result = NcfSequence::generate($clinicId, $ncfType);
+            if ($result['error']) {
+                return back()->withErrors(['ncf_type' => $result['error']]);
+            }
+            $ncf = $result['ncf'];
+        }
+
         $invoice = Invoice::create([
             'clinic_id'       => $clinicId,
             'patient_id'      => $validated['patient_id'],
             'invoice_number'  => Invoice::generateNumber($clinicId),
+            'ncf'             => $ncf,
+            'ncf_type'        => $ncfType,
             'invoice_date'    => $validated['invoice_date'],
             'due_date'        => $validated['due_date'] ?? null,
             'status'          => 'pending',
@@ -290,6 +321,73 @@ class InvoiceController extends Controller
 
         $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice, 'clinic' => $invoice->clinic]);
         return $pdf->download("invoice-{$invoice->invoice_number}.pdf");
+    }
+
+    public function refund(Request $request, Invoice $invoice)
+    {
+        $this->authorizeClinic($invoice);
+
+        if ($invoice->status !== 'paid') {
+            return back()->withErrors(['error' => 'Solo se pueden reembolsar facturas con estado Pagada.']);
+        }
+
+        $validated = $request->validate([
+            'amount'       => 'required|numeric|min:0.01|max:' . $invoice->amount_paid,
+            'payment_date' => 'required|date',
+            'method'       => 'required|in:cash,card,transfer,insurance,other',
+            'reference'    => 'nullable|string',
+            'notes'        => 'nullable|string',
+        ]);
+
+        Payment::create([
+            'clinic_id'    => $invoice->clinic_id,
+            'invoice_id'   => $invoice->id,
+            'amount'       => -abs($validated['amount']),
+            'payment_date' => $validated['payment_date'],
+            'method'       => $validated['method'],
+            'reference'    => $validated['reference'] ?? null,
+            'notes'        => 'REEMBOLSO: ' . ($validated['notes'] ?? ''),
+        ]);
+
+        $invoice->update([
+            'amount_paid' => $invoice->amount_paid - abs($validated['amount']),
+            'status'      => 'refunded',
+        ]);
+
+        return back()->with('success', 'Reembolso registrado. Ahora puedes anular la factura con NCF B04.');
+    }
+
+    public function void(Invoice $invoice)
+    {
+        $this->authorizeClinic($invoice);
+
+        if ($invoice->status === 'voided') {
+            return back()->withErrors(['error' => 'Esta factura ya está anulada.']);
+        }
+
+        if ($invoice->status === 'paid') {
+            return back()->withErrors(['error' => 'No se puede anular una factura pagada. Registra un reembolso primero desde el botón "Reembolsar".']);
+        }
+
+        $clinicId = $invoice->clinic_id;
+        $ncfVoid  = null;
+        $b04Result = NcfSequence::generate($clinicId, 'B04');
+
+        if (!$b04Result['error']) {
+            $ncfVoid = $b04Result['ncf'];
+        }
+
+        $invoice->update([
+            'status'    => 'voided',
+            'ncf_void'  => $ncfVoid,
+            'voided_at' => now(),
+        ]);
+
+        $msg = 'Factura anulada correctamente.';
+        if ($ncfVoid) $msg .= " NCF de anulación: {$ncfVoid}.";
+        else $msg .= ' (Configura una secuencia B04 en Ajustes para emitir comprobante de anulación.)';
+
+        return back()->with('success', $msg);
     }
 
     private function authorizeClinic(Invoice $invoice): void
