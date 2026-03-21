@@ -54,6 +54,8 @@ class RegisteredUserController extends Controller
             'role'      => 'admin',
         ]);
 
+        $clinic->seedDefaultCatalog();
+
         event(new Registered($user));
         Auth::login($user);
 
