@@ -187,6 +187,7 @@ const formatCurrency = (v) => new Intl.NumberFormat('es-DO', { style: 'currency'
       <div class="card p-6">
         <h3 class="font-display font-semibold text-navy-900 dark:text-white mb-3">Contacto y dirección</h3>
         <dl class="space-y-2 text-sm">
+          <div class="flex gap-2"><dt class="w-28 text-navy-400 flex-shrink-0">Cédula / RNC</dt><dd class="text-navy-700 dark:text-navy-300">{{ patient.client_document || '—' }}</dd></div>
           <div class="flex gap-2"><dt class="w-28 text-navy-400 flex-shrink-0">Teléfono</dt><dd class="text-navy-700 dark:text-navy-300">{{ patient.phone || '—' }}</dd></div>
           <div class="flex gap-2"><dt class="w-28 text-navy-400 flex-shrink-0">Teléfono alternativo</dt><dd class="text-navy-700 dark:text-navy-300">{{ patient.phone_alt || '—' }}</dd></div>
           <div class="flex gap-2"><dt class="w-28 text-navy-400 flex-shrink-0">Correo</dt><dd class="text-navy-700 dark:text-navy-300">{{ patient.email || '—' }}</dd></div>

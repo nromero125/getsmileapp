@@ -8,6 +8,7 @@ const props = defineProps({ patient: Object })
 const form = useForm({
   first_name: props.patient.first_name,
   last_name: props.patient.last_name,
+  client_document: props.patient.client_document || '',
   email: props.patient.email || '',
   phone: props.patient.phone,
   phone_alt: props.patient.phone_alt || '',
@@ -47,6 +48,7 @@ const bloodTypes = ['A+','A-','B+','B-','AB+','AB-','O+','O-']
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div><label class="label">Nombre *</label><input v-model="form.first_name" type="text" class="input" required /></div>
           <div><label class="label">Apellido *</label><input v-model="form.last_name" type="text" class="input" required /></div>
+          <div><label class="label">Cédula / RNC</label><input v-model="form.client_document" type="text" class="input" placeholder="Ej: 001-1234567-8" /></div>
           <div><label class="label">Correo</label><input v-model="form.email" type="email" class="input" /></div>
           <div><label class="label">Teléfono *</label><input v-model="form.phone" type="tel" class="input" required /></div>
           <div><label class="label">Fecha de nacimiento</label><input v-model="form.date_of_birth" type="date" class="input" /></div>

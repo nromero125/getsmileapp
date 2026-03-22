@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
   period:          String,
@@ -315,6 +316,19 @@ const cancelRate = computed(() => {
           </table>
         </div>
         <p v-else class="text-sm text-navy-400">Sin citas en este período.</p>
+      </div>
+
+      <!-- Exportaciones DGII -->
+      <div class="card p-5">
+        <p class="text-sm font-semibold text-navy-800 dark:text-white mb-1">Exportaciones DGII</p>
+        <p class="text-xs text-navy-400 mb-4">Archivos requeridos para la declaración fiscal</p>
+        <Link :href="route('dgii.607')" class="flex items-center justify-between p-3 rounded-xl bg-navy-50 dark:bg-navy-800 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors group">
+          <div>
+            <p class="text-sm font-semibold text-navy-800 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400">607 — Reporte de Ventas</p>
+            <p class="text-xs text-navy-400">Comprobantes fiscales emitidos por mes</p>
+          </div>
+          <ArrowDownTrayIcon class="w-4 h-4 text-navy-400 group-hover:text-teal-600" />
+        </Link>
       </div>
 
       <!-- Top tratamientos -->

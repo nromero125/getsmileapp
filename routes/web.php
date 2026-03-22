@@ -8,6 +8,7 @@ use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Appointment\DentalRecordController;
 use App\Http\Controllers\Appointment\DiagnosisController;
 use App\Http\Controllers\Billing\InvoiceController;
+use App\Http\Controllers\Billing\Dgii607Controller;
 use App\Http\Controllers\Billing\QuoteController;
 use App\Http\Controllers\Billing\SubscriptionController;
 use App\Http\Controllers\Inventory\InventoryController;
@@ -44,6 +45,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Reports
         Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+
+        // DGII 607 export
+        Route::get('/dgii/607', [Dgii607Controller::class, 'index'])->name('dgii.607');
+        Route::get('/dgii/607/download', [Dgii607Controller::class, 'download'])
+            ->middleware('can:billing')
+            ->name('dgii.607.download');
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

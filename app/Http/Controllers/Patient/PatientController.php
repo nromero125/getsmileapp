@@ -62,6 +62,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'first_name'             => 'required|string|max:100',
             'last_name'              => 'required|string|max:100',
+            'client_document'        => 'nullable|string|max:20',
             'email'                  => 'nullable|email|max:255',
             'phone'                  => 'required|string|max:20',
             'phone_alt'              => 'nullable|string|max:20',
@@ -166,6 +167,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'first_name'             => 'required|string|max:100',
             'last_name'              => 'required|string|max:100',
+            'client_document'        => 'nullable|string|max:20',
             'email'                  => 'nullable|email|max:255',
             'phone'                  => 'required|string|max:20',
             'phone_alt'              => 'nullable|string|max:20',

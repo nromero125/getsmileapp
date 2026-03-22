@@ -5,7 +5,7 @@ import { Link } from '@inertiajs/vue3'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 
 const form = useForm({
-  first_name: '', last_name: '', email: '', phone: '', phone_alt: '',
+  first_name: '', last_name: '', client_document: '', email: '', phone: '', phone_alt: '',
   date_of_birth: '', gender: '', address: '', city: '', state: '', zip_code: '',
   blood_type: '', allergies: '', medical_notes: '',
   insurance_provider: '', insurance_policy_number: '',
@@ -41,6 +41,10 @@ const bloodTypes = ['A+','A-','B+','B-','AB+','AB-','O+','O-']
             <label class="label">Apellido *</label>
             <input v-model="form.last_name" type="text" class="input" :class="{'input-error': form.errors.last_name}" required />
             <p v-if="form.errors.last_name" class="text-xs text-red-500 mt-1">{{ form.errors.last_name }}</p>
+          </div>
+          <div>
+            <label class="label">Cédula / RNC</label>
+            <input v-model="form.client_document" type="text" class="input" placeholder="Ej: 001-1234567-8" />
           </div>
           <div>
             <label class="label">Correo</label>

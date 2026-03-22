@@ -142,7 +142,7 @@
       <tr><td style="color:#059669">Descuento ({{ $invoice->discount_percent }}%)</td><td style="text-align:right;color:#059669">-RD${{ number_format($invoice->discount_amount, 2) }}</td></tr>
       @endif
       @if($invoice->tax_amount > 0)
-      <tr><td style="color:#6B7280">Impuesto ({{ $invoice->tax_percent }}%)</td><td style="text-align:right">RD${{ number_format($invoice->tax_amount, 2) }}</td></tr>
+      <tr><td style="color:#6B7280">ITBIS ({{ $invoice->tax_percent }}%)</td><td style="text-align:right">RD${{ number_format($invoice->tax_amount, 2) }}</td></tr>
       @endif
       @if($invoice->amount_paid > 0)
       <tr><td style="color:#059669">Pagado</td><td style="text-align:right;color:#059669">-RD${{ number_format($invoice->amount_paid, 2) }}</td></tr>

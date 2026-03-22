@@ -97,13 +97,13 @@ const submit = () => form.post(route('quotes.store'))
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div class="space-y-3">
             <div><label class="label">Descuento %</label><input v-model="form.discount_percent" type="number" min="0" max="100" step="0.5" class="input" /></div>
-            <div><label class="label">Impuesto %</label><input v-model="form.tax_percent" type="number" min="0" max="30" step="0.5" class="input" /></div>
+            <div><label class="label">ITBIS %</label><input v-model="form.tax_percent" type="number" min="0" max="30" step="0.5" class="input" /></div>
             <div><label class="label">Notas</label><textarea v-model="form.notes" rows="2" class="input" /></div>
           </div>
           <div class="space-y-2 text-sm">
             <div class="flex justify-between py-2 border-b border-navy-100 dark:border-navy-800"><span class="text-navy-500">Subtotal</span><span class="font-medium">{{ fmt(subtotal) }}</span></div>
             <div v-if="discountAmt > 0" class="flex justify-between py-2 border-b border-navy-100 dark:border-navy-800"><span class="text-green-600">Descuento</span><span class="text-green-600">-{{ fmt(discountAmt) }}</span></div>
-            <div v-if="taxAmt > 0" class="flex justify-between py-2 border-b border-navy-100 dark:border-navy-800"><span class="text-navy-500">Impuesto</span><span>{{ fmt(taxAmt) }}</span></div>
+            <div v-if="taxAmt > 0" class="flex justify-between py-2 border-b border-navy-100 dark:border-navy-800"><span class="text-navy-500">ITBIS</span><span>{{ fmt(taxAmt) }}</span></div>
             <div class="flex justify-between py-3 bg-navy-50 dark:bg-navy-800 rounded-xl px-3 mt-2">
               <span class="font-bold text-navy-900 dark:text-white">Total</span>
               <span class="font-bold text-xl text-navy-900 dark:text-white">{{ fmt(total) }}</span>

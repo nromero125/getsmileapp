@@ -162,7 +162,7 @@ const submitRefund = () => {
           <tfoot class="border-t-2 border-navy-200 dark:border-navy-700">
             <tr><td colspan="3" class="px-4 py-2 text-right text-sm text-navy-500">Subtotal</td><td class="px-4 py-2 text-right font-medium">{{ formatCurrency(invoice.subtotal) }}</td></tr>
             <tr v-if="invoice.discount_amount > 0"><td colspan="3" class="px-4 py-2 text-right text-sm text-green-600">Descuento ({{ invoice.discount_percent }}%)</td><td class="px-4 py-2 text-right text-green-600">-{{ formatCurrency(invoice.discount_amount) }}</td></tr>
-            <tr v-if="invoice.tax_amount > 0"><td colspan="3" class="px-4 py-2 text-right text-sm text-navy-500">Impuesto ({{ invoice.tax_percent }}%)</td><td class="px-4 py-2 text-right">{{ formatCurrency(invoice.tax_amount) }}</td></tr>
+            <tr v-if="invoice.tax_amount > 0"><td colspan="3" class="px-4 py-2 text-right text-sm text-navy-500">ITBIS ({{ invoice.tax_percent }}%)</td><td class="px-4 py-2 text-right">{{ formatCurrency(invoice.tax_amount) }}</td></tr>
             <tr class="bg-navy-50 dark:bg-navy-800"><td colspan="3" class="px-4 py-3 text-right font-bold text-navy-900 dark:text-white">Total</td><td class="px-4 py-3 text-right font-bold text-xl text-navy-900 dark:text-white">{{ formatCurrency(invoice.total) }}</td></tr>
           </tfoot>
         </table>

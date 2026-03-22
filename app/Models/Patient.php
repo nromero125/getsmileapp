@@ -14,7 +14,7 @@ class Patient extends Model implements HasMedia
     use HasFactory, SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
-        'clinic_id', 'first_name', 'last_name', 'email', 'phone', 'phone_alt',
+        'clinic_id', 'first_name', 'last_name', 'client_document', 'email', 'phone', 'phone_alt',
         'date_of_birth', 'gender', 'address', 'city', 'state', 'zip_code',
         'blood_type', 'allergies', 'medical_notes', 'insurance_provider',
         'insurance_policy_number', 'emergency_contact_name', 'emergency_contact_phone',
