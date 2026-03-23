@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -51,6 +52,13 @@ class HandleInertiaRequests extends Middleware
                 'error'   => fn() => $request->session()->get('error'),
             ],
             'subscription' => $subscription,
+            'wa_unread'    => fn() => $clinic?->wa_plan
+                ? DB::table('whatsapp_messages')
+                    ->where('clinic_id', $clinic->id)
+                    ->where('direction', 'in')
+                    ->whereNull('read_at')
+                    ->count()
+                : 0,
         ]);
     }
 }

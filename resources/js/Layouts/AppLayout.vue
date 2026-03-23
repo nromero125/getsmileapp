@@ -5,12 +5,13 @@ import {
   HomeIcon, UsersIcon, CalendarIcon, CreditCardIcon,
   CogIcon, UserGroupIcon, Bars3Icon, SunIcon, MoonIcon,
   ChevronDownIcon, UserCircleIcon, ArrowRightOnRectangleIcon, BeakerIcon, ArchiveBoxIcon,
-  ClipboardDocumentListIcon, ChartBarIcon
+  ClipboardDocumentListIcon, ChartBarIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/vue/24/outline'
 
 const page = usePage()
 const user = computed(() => page.props.auth?.user)
 const clinic = computed(() => page.props.auth?.clinic)
+const waUnread = computed(() => page.props.wa_unread ?? 0)
 
 const sidebarOpen = ref(true)
 const mobileOpen = ref(false)
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'Facturación',  href: route('invoices.index'),        icon: CreditCardIcon },
   { name: 'Inventario',   href: route('inventory.index'),       icon: ArchiveBoxIcon },
   { name: 'Reportes',     href: route('reports.index'),         icon: ChartBarIcon },
+  { name: 'WhatsApp',    href: route('whatsapp.inbox'),        icon: ChatBubbleLeftRightIcon, waOnly: true },
   { name: 'Tratamientos', href: route('treatments.index'),       icon: BeakerIcon,                adminOnly: true },
   { name: 'Diagnósticos', href: route('diagnosis-catalog.index'), icon: ClipboardDocumentListIcon, adminOnly: true },
   { name: 'Personal',    href: route('staff.index'),             icon: UserGroupIcon,             adminOnly: true },
@@ -94,14 +96,27 @@ const subscription = computed(() => page.props.subscription || {})
       <!-- Navigation -->
       <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         <template v-for="item in navigation" :key="item.name">
-          <Link v-if="!item.adminOnly || user?.role === 'admin'"
+          <Link
+            v-if="(!item.adminOnly || user?.role === 'admin') && (!item.waOnly || clinic?.wa_plan)"
             :href="item.href"
             :class="['sidebar-link', isActive(item.href) ? 'active' : '']"
             :title="!sidebarOpen ? item.name : undefined">
-            <component :is="item.icon" class="flex-shrink-0 w-5 h-5" />
+            <div class="relative flex-shrink-0">
+              <component :is="item.icon" class="w-5 h-5" />
+              <span v-if="item.waOnly && waUnread > 0"
+                class="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 text-[9px] font-bold text-white flex items-center justify-center">
+                {{ waUnread > 9 ? '9+' : waUnread }}
+              </span>
+            </div>
             <Transition enter-active-class="transition-all duration-200" leave-active-class="transition-all duration-200"
               enter-from-class="opacity-0 w-0" leave-to-class="opacity-0 w-0">
-              <span v-if="sidebarOpen" class="truncate">{{ item.name }}</span>
+              <span v-if="sidebarOpen" class="truncate flex items-center gap-2">
+                {{ item.name }}
+                <span v-if="item.waOnly && waUnread > 0"
+                  class="ml-auto text-[10px] font-bold bg-teal-500 text-white px-1.5 py-0.5 rounded-full">
+                  {{ waUnread }}
+                </span>
+              </span>
             </Transition>
           </Link>
         </template>

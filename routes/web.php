@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DiagnosisCatalogController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
 use App\Http\Controllers\Appointment\AppointmentController;
+use App\Http\Controllers\WhatsApp\WhatsAppInboxController;
 use App\Http\Controllers\Appointment\DentalRecordController;
 use App\Http\Controllers\Appointment\DiagnosisController;
 use App\Http\Controllers\Billing\InvoiceController;
@@ -47,6 +48,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // WhatsApp Inbox
+        Route::get('/whatsapp/inbox', [WhatsAppInboxController::class, 'index'])->name('whatsapp.inbox');
+        Route::get('/whatsapp/inbox/{phone}/thread', [WhatsAppInboxController::class, 'thread'])->name('whatsapp.thread');
 
         // Reports
         Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');

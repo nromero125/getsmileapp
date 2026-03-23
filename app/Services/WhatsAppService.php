@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Clinic;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -143,6 +144,26 @@ class WhatsAppService
 
     // ── Internal ──────────────────────────────────────────────────────────────
 
+    private function logOutgoing(string $phone, string $template, Clinic $clinic): void
+    {
+        $patient = \App\Models\Patient::where('clinic_id', $clinic->id)
+            ->whereNotNull('phone')
+            ->get(['id', 'phone'])
+            ->first(fn($p) => $this->normalizePhone($p->phone) === $phone);
+
+        DB::table('whatsapp_messages')->insert([
+            'clinic_id'  => $clinic->id,
+            'patient_id' => $patient?->id,
+            'phone'      => $phone,
+            'direction'  => 'out',
+            'body'       => null,
+            'template'   => $template,
+            'read_at'    => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
     private function send(array $payload, string $type, string $phone, ?Clinic $clinic = null): bool
     {
         if (! $this->token || ! $this->phoneNumberId) {
@@ -162,6 +183,14 @@ class WhatsAppService
                     'msgId' => $response->json('messages.0.id'),
                 ]);
                 $clinic?->waIncrementUsed();
+                if ($clinic) {
+                    DB::table('whatsapp_last_contact')->upsert(
+                        [['phone' => $phone, 'clinic_id' => $clinic->id, 'sent_at' => now()]],
+                        ['phone'],
+                        ['clinic_id', 'sent_at']
+                    );
+                    $this->logOutgoing($phone, $type, $clinic);
+                }
                 return true;
             }
 
