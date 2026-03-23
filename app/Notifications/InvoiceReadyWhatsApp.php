@@ -37,6 +37,7 @@ class InvoiceReadyWhatsApp extends Notification implements ShouldQueue
 
         return [
             'template' => 'invoice_ready',
+            'clinic'   => $inv->clinic,
             'params'   => [
                 $notifiable->first_name,
                 $inv->invoice_number,

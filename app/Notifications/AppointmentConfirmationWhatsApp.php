@@ -43,6 +43,7 @@ class AppointmentConfirmationWhatsApp extends Notification implements ShouldQueu
 
         return [
             'template' => 'appointment_confirmation',
+            'clinic'   => $appt->clinic,
             'params'   => [
                 $notifiable->first_name,
                 $date,

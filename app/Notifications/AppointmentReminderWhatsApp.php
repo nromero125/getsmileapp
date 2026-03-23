@@ -40,6 +40,7 @@ class AppointmentReminderWhatsApp extends Notification implements ShouldQueue
 
         return [
             'template' => 'appointment_reminder',
+            'clinic'   => $appt->clinic,
             'params'   => [
                 $notifiable->first_name,
                 $when,

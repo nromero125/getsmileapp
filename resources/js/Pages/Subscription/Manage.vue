@@ -1,10 +1,10 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Link } from '@inertiajs/vue3'
-import { computed } from 'vue'
+import { Link, useForm, router } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
-  subscription: Object,   // { status, paddle_id, trial_ends_at, created_at }
+  subscription: Object,
   clinic: Object,
   seatsIncluded: Number,
   activeUsers: Number,
@@ -12,18 +12,22 @@ const props = defineProps({
   onTrial: Boolean,
   trialDaysLeft: Number,
   subscribed: Boolean,
-  billingPortalUrl: String,
+  waPlan: String,
+  waMessagesQuota: Number,
+  waMessagesUsed: Number,
+  waMessagesResetAt: String,
+  waPlans: Object,
 })
 
 const statusLabel = computed(() => {
   if (props.onTrial) return 'Período de prueba'
   if (!props.subscribed) return 'Sin suscripción'
   const map = {
-    active:    'Activa',
-    trialing:  'En prueba',
-    past_due:  'Pago vencido',
-    paused:    'Pausada',
-    canceled:  'Cancelada',
+    active:   'Activa',
+    trialing: 'En prueba',
+    past_due: 'Pago vencido',
+    paused:   'Pausada',
+    canceled: 'Cancelada',
   }
   return map[props.subscription?.status] ?? props.subscription?.status
 })
@@ -40,6 +44,22 @@ const statusColor = computed(() => {
   }
   return map[props.subscription?.status] ?? 'badge-gray'
 })
+
+const waUsagePercent = computed(() => props.waMessagesQuota > 0 ? Math.min(100, Math.round((props.waMessagesUsed / props.waMessagesQuota) * 100)) : 0)
+const waUsageColor = computed(() => {
+  if (waUsagePercent.value >= 90) return 'bg-red-500'
+  if (waUsagePercent.value >= 70) return 'bg-amber-500'
+  return 'bg-teal-500'
+})
+
+const changingPlan = ref(false)
+const activatePlan = (plan) => {
+  if (changingPlan.value) return
+  changingPlan.value = true
+  router.patch(route('subscription.whatsapp-plan'), { plan }, {
+    onFinish: () => changingPlan.value = false,
+  })
+}
 </script>
 
 <template>
@@ -60,7 +80,6 @@ const statusColor = computed(() => {
             <div class="flex items-center gap-2">
               <span :class="['badge', statusColor]">{{ statusLabel }}</span>
             </div>
-
             <div v-if="onTrial" class="mt-3 text-sm text-navy-600 dark:text-navy-400">
               Tu período de prueba vence en <strong>{{ trialDaysLeft }} días</strong>.
             </div>
@@ -119,6 +138,72 @@ const statusColor = computed(() => {
             <span>Total estimado</span>
             <span>${{ 25 + extraSeats * 3 }}/mes</span>
           </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Message Plans -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="font-semibold text-navy-900 dark:text-white">Mensajes WhatsApp</h2>
+          <span v-if="waPlan" class="badge badge-teal capitalize">{{ waPlans[waPlan]?.label }}</span>
+          <span v-else class="badge badge-gray">Sin plan</span>
+        </div>
+        <p class="text-xs text-navy-500 dark:text-navy-400 mb-4">
+          Confirmaciones, recordatorios y notificaciones de facturas para tus pacientes.
+        </p>
+
+        <!-- Usage bar -->
+        <div v-if="waPlan" class="mb-5">
+          <div class="flex justify-between text-xs text-navy-500 dark:text-navy-400 mb-1">
+            <span>{{ waMessagesUsed.toLocaleString('es-DO') }} / {{ waMessagesQuota.toLocaleString('es-DO') }} mensajes usados</span>
+            <span>{{ waUsagePercent }}%</span>
+          </div>
+          <div class="h-2 rounded-full bg-navy-100 dark:bg-navy-700 overflow-hidden">
+            <div :class="['h-full rounded-full transition-all', waUsageColor]" :style="`width: ${waUsagePercent}%`"></div>
+          </div>
+          <div class="flex justify-between text-xs mt-1">
+            <span class="text-navy-400">
+              Reinicio:
+              {{ waMessagesResetAt ? new Date(waMessagesResetAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' }) : '—' }}
+            </span>
+            <span :class="waUsagePercent >= 90 ? 'text-red-500 font-semibold' : 'text-navy-400'">
+              {{ (waMessagesQuota - waMessagesUsed).toLocaleString('es-DO') }} disponibles
+            </span>
+          </div>
+        </div>
+
+        <!-- Plan selection -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <div v-for="(plan, key) in waPlans" :key="key"
+            :class="[
+              'rounded-xl border-2 p-4 text-center transition-all',
+              waPlan === key
+                ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
+                : 'border-navy-200 dark:border-navy-700 hover:border-teal-400',
+            ]">
+            <p class="font-semibold text-navy-900 dark:text-white">{{ plan.label }}</p>
+            <p class="text-2xl font-bold text-teal-600 my-1">${{ plan.price }}<span class="text-sm font-normal text-navy-400">/mes</span></p>
+            <p class="text-xs text-navy-500 dark:text-navy-400 mb-3">{{ plan.msgs.toLocaleString('es-DO') }} mensajes</p>
+            <button
+              @click="activatePlan(key)"
+              :disabled="changingPlan || waPlan === key"
+              :class="[
+                'w-full text-xs py-1.5 rounded-lg font-medium transition-colors',
+                waPlan === key
+                  ? 'bg-teal-500 text-white cursor-default'
+                  : 'btn-outline',
+              ]">
+              {{ waPlan === key ? 'Plan actual' : (changingPlan ? 'Procesando…' : 'Activar') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Cancel plan -->
+        <div v-if="waPlan" class="flex items-center justify-between pt-3 border-t border-navy-100 dark:border-navy-700">
+          <span class="text-xs text-navy-500 dark:text-navy-400">¿Ya no necesitas WhatsApp?</span>
+          <button @click="activatePlan('none')" :disabled="changingPlan" class="text-xs text-red-500 hover:text-red-600 disabled:opacity-50">
+            Cancelar plan
+          </button>
         </div>
       </div>
 

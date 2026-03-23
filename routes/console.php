@@ -14,3 +14,8 @@ Schedule::command('appointments:send-reminders --hours=24')
     ->hourly()
     ->withoutOverlapping()
     ->runInBackground();
+
+// Reset WhatsApp monthly message quotas on the 1st of each month
+Schedule::command('whatsapp:reset-quotas')
+    ->monthlyOn(1, '00:00')
+    ->withoutOverlapping();

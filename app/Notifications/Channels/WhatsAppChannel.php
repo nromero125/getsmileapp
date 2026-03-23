@@ -22,6 +22,7 @@ class WhatsAppChannel
             template: $data['template'],
             params:   $data['params'] ?? [],
             header:   $data['header'] ?? [],
+            clinic:   $data['clinic'] ?? null,
         );
     }
 }

@@ -18,14 +18,16 @@ class Clinic extends Model
     protected $fillable = [
         'name', 'slug', 'email', 'phone', 'address',
         'logo_path', 'website', 'tax_id', 'settings', 'is_active', 'trial_ends_at',
+        'wa_plan', 'wa_messages_quota', 'wa_messages_used', 'wa_messages_reset_at',
     ];
 
     protected $appends = ['logo_url'];
 
     protected $casts = [
-        'settings'      => 'array',
-        'is_active'     => 'boolean',
-        'trial_ends_at' => 'datetime',
+        'settings'             => 'array',
+        'is_active'            => 'boolean',
+        'trial_ends_at'        => 'datetime',
+        'wa_messages_reset_at' => 'datetime',
     ];
 
     public function onLocalTrial(): bool
@@ -46,6 +48,23 @@ class Clinic extends Model
     public function extraSeatCount(): int
     {
         return max(0, $this->activeUserCount() - 3);
+    }
+
+    public function waCanSend(): bool
+    {
+        if (! $this->wa_plan) return false;
+
+        return $this->wa_messages_used < $this->wa_messages_quota;
+    }
+
+    public function waMessagesAvailable(): int
+    {
+        return max(0, $this->wa_messages_quota - $this->wa_messages_used);
+    }
+
+    public function waIncrementUsed(): void
+    {
+        $this->increment('wa_messages_used');
     }
 
     protected static function boot()

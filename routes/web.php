@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/subscription/required', [SubscriptionController::class, 'required'])->name('subscription.required');
     Route::get('/subscription/billing-portal', [SubscriptionController::class, 'billingPortal'])->name('subscription.billing-portal');
     Route::get('/subscription/manage', [SubscriptionController::class, 'manage'])->name('subscription.manage');
+    Route::patch('/subscription/whatsapp-plan', [SubscriptionController::class, 'updateWhatsAppPlan'])->name('subscription.whatsapp-plan');
 
     // All other authenticated routes require active subscription or trial
     Route::middleware('subscribed')->group(function () {

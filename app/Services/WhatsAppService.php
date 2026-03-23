@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Clinic;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -30,11 +31,21 @@ class WhatsAppService
      * @param  array   $header   Optional header parameter (e.g. ['type'=>'text','text'=>'...'])
      */
     public function sendTemplate(
-        string $to,
-        string $template,
-        array  $params = [],
-        array  $header = [],
+        string  $to,
+        string  $template,
+        array   $params = [],
+        array   $header = [],
+        ?Clinic $clinic = null,
     ): bool {
+        if ($clinic && ! $clinic->waCanSend()) {
+            Log::warning('WhatsApp: quota exhausted', [
+                'clinic'    => $clinic->id,
+                'plan'      => $clinic->wa_plan,
+                'used'      => $clinic->wa_messages_used,
+                'quota'     => $clinic->wa_messages_quota + $clinic->wa_messages_extra,
+            ]);
+            return false;
+        }
         $phone = $this->normalizePhone($to);
         if (! $phone) {
             Log::warning('WhatsApp: invalid phone number', ['raw' => $to]);
@@ -74,7 +85,7 @@ class WhatsAppService
             ],
         ];
 
-        return $this->send($payload, $template, $phone);
+        return $this->send($payload, $template, $phone, $clinic);
     }
 
     /**
@@ -132,7 +143,7 @@ class WhatsAppService
 
     // ── Internal ──────────────────────────────────────────────────────────────
 
-    private function send(array $payload, string $type, string $phone): bool
+    private function send(array $payload, string $type, string $phone, ?Clinic $clinic = null): bool
     {
         if (! $this->token || ! $this->phoneNumberId) {
             Log::error('WhatsApp: WHATSAPP_TOKEN or WHATSAPP_PHONE_NUMBER_ID not configured.');
@@ -150,6 +161,7 @@ class WhatsAppService
                     'to'    => $phone,
                     'msgId' => $response->json('messages.0.id'),
                 ]);
+                $clinic?->waIncrementUsed();
                 return true;
             }
 

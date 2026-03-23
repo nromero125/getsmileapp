@@ -92,15 +92,26 @@ class SubscriptionController extends Controller
             ? max(0, (int) now()->diffInDays($clinic->trial_ends_at, false))
             : 0;
 
+        $waPlans = [
+            'basic'    => ['label' => 'Básico',    'price' => 10, 'msgs' => config('cashier.wa_quota.basic')],
+            'standard' => ['label' => 'Estándar',  'price' => 20, 'msgs' => config('cashier.wa_quota.standard')],
+            'pro'      => ['label' => 'Pro',        'price' => 30, 'msgs' => config('cashier.wa_quota.pro')],
+        ];
+
         return Inertia::render('Subscription/Manage', [
-            'subscription'  => $subscription?->only(['paddle_id', 'status', 'trial_ends_at', 'created_at']),
-            'clinic'        => $clinic->only(['id', 'name']),
-            'seatsIncluded' => 3,
-            'activeUsers'   => $clinic->activeUserCount(),
-            'extraSeats'    => $clinic->extraSeatCount(),
-            'onTrial'       => $clinic->onLocalTrial(),
-            'trialDaysLeft' => $trialDaysLeft,
-            'subscribed'    => $clinic->subscribed('default'),
+            'subscription'      => $subscription?->only(['paddle_id', 'status', 'trial_ends_at', 'created_at']),
+            'clinic'            => $clinic->only(['id', 'name']),
+            'seatsIncluded'     => 3,
+            'activeUsers'       => $clinic->activeUserCount(),
+            'extraSeats'        => $clinic->extraSeatCount(),
+            'onTrial'           => $clinic->onLocalTrial(),
+            'trialDaysLeft'     => $trialDaysLeft,
+            'subscribed'        => $clinic->subscribed('default'),
+            'waPlan'            => $clinic->wa_plan,
+            'waMessagesQuota'   => $clinic->wa_messages_quota,
+            'waMessagesUsed'    => $clinic->wa_messages_used,
+            'waMessagesResetAt' => $clinic->wa_messages_reset_at?->toDateString(),
+            'waPlans'           => $waPlans,
         ]);
     }
 
@@ -114,6 +125,37 @@ class SubscriptionController extends Controller
             'priceId'     => config('cashier.price_monthly'),
             'isSandbox'   => config('cashier.sandbox'),
         ]);
+    }
+
+    /**
+     * Activate or change the clinic's WhatsApp message plan.
+     * PATCH /subscription/whatsapp-plan
+     */
+    public function updateWhatsAppPlan(Request $request)
+    {
+        $request->validate([
+            'plan' => 'required|in:basic,standard,pro,none',
+        ]);
+
+        $clinic = $request->user()->clinic;
+        $plan   = $request->plan === 'none' ? null : $request->plan;
+
+        $quota = $plan ? config("cashier.wa_quota.{$plan}") : 0;
+
+        // Patch Paddle subscription
+        if ($clinic->subscribed('default')) {
+            static::syncWhatsAppPlan($clinic, $plan);
+        }
+
+        $clinic->update([
+            'wa_plan'              => $plan,
+            'wa_messages_quota'    => $quota,
+            'wa_messages_used'     => 0,
+            'wa_messages_reset_at' => now(),
+        ]);
+
+        $label = $plan ? ucfirst($plan) : 'desactivado';
+        return back()->with('success', "Plan WhatsApp {$label} activado.");
     }
 
     /**
@@ -170,4 +212,36 @@ class SubscriptionController extends Controller
 
         \Illuminate\Support\Facades\Log::info('SyncSeats:response', ['status' => $response->status(), 'body' => $response->json()]);
     }
+
+    /**
+     * Sync WhatsApp plan item on the Paddle subscription.
+     */
+    public static function syncWhatsAppPlan($clinic, ?string $plan): void
+    {
+        $subscription = $clinic->subscription('default');
+        if (! $subscription?->active()) return;
+
+        $baseUrl     = config('cashier.sandbox') ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com';
+        $waPriceKeys = ['basic' => 'price_wa_basic', 'standard' => 'price_wa_standard', 'pro' => 'price_wa_pro'];
+
+        $items = [
+            ['price_id' => config('cashier.price_monthly'), 'quantity' => 1],
+        ];
+
+        $extraSeats = $clinic->extraSeatCount();
+        if ($extraSeats > 0 && config('cashier.price_extra_seat')) {
+            $items[] = ['price_id' => config('cashier.price_extra_seat'), 'quantity' => $extraSeats];
+        }
+
+        if ($plan && isset($waPriceKeys[$plan]) && config("cashier.{$waPriceKeys[$plan]}")) {
+            $items[] = ['price_id' => config("cashier.{$waPriceKeys[$plan]}"), 'quantity' => 1];
+        }
+
+        Http::withToken(config('cashier.api_key'))
+            ->patch("{$baseUrl}/subscriptions/{$subscription->paddle_id}", [
+                'items'                  => $items,
+                'proration_billing_mode' => 'prorated_immediately',
+            ]);
+    }
+
 }

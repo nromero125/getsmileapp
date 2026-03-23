@@ -96,4 +96,16 @@ return [
     'price_monthly'    => env('PADDLE_PRICE_MONTHLY'),
     'price_extra_seat' => env('PADDLE_PRICE_EXTRA_SEAT'),
 
+    // WhatsApp message plans (added as subscription items)
+    'price_wa_basic'    => env('PADDLE_PRICE_WA_BASIC'),    // $10/mes → 300 msgs
+    'price_wa_standard' => env('PADDLE_PRICE_WA_STANDARD'), // $20/mes → 800 msgs
+    'price_wa_pro'      => env('PADDLE_PRICE_WA_PRO'),      // $30/mes → 1500 msgs
+
+    // Message quota per plan
+    'wa_quota' => [
+        'basic'    => (int) env('WA_QUOTA_BASIC',    300),
+        'standard' => (int) env('WA_QUOTA_STANDARD', 800),
+        'pro'      => (int) env('WA_QUOTA_PRO',      1500),
+    ],
+
 ];
