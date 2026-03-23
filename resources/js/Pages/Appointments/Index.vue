@@ -56,13 +56,14 @@ onMounted(async () => {
       startTime: '08:00',
       endTime: '18:00',
     },
-    events: async (info, successCallback) => {
-      const response = await fetch(
+    events: (info, successCallback, failureCallback) => {
+      fetch(
         `/api/appointments/calendar?start=${info.startStr}&end=${info.endStr}`,
         { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } }
       )
-      const events = await response.json()
-      successCallback(events)
+        .then(r => r.json())
+        .then(data => successCallback(data))
+        .catch(err => failureCallback(err))
     },
     eventClick: (info) => {
       selectedEvent.value = {
