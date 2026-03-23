@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppService
 {
     private string $apiUrl;
-    private string $phoneNumberId;
-    private string $token;
+    private ?string $phoneNumberId;
+    private ?string $token;
 
     public function __construct()
     {
         $this->apiUrl        = config('whatsapp.api_url');
-        $this->phoneNumberId = config('whatsapp.phone_number_id');
-        $this->token         = config('whatsapp.token');
+        $this->phoneNumberId = config('whatsapp.phone_number_id') ?: null;
+        $this->token         = config('whatsapp.token') ?: null;
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
