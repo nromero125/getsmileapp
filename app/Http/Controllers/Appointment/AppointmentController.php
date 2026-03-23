@@ -203,23 +203,48 @@ class AppointmentController extends Controller
 
         $appointment->load(['patient', 'dentist', 'clinic']);
 
-        $messages = [];
+        $sent   = [];
+        $failed = [];
 
-        // Email confirmation
+        // Email confirmation — independent of WhatsApp
         if ($appointment->patient->email) {
-            Mail::to($appointment->patient->email)
-                ->send(new AppointmentConfirmationMail($appointment));
-            $messages[] = 'correo a ' . $appointment->patient->email;
+            try {
+                Mail::to($appointment->patient->email)
+                    ->send(new AppointmentConfirmationMail($appointment));
+                $sent[] = 'correo';
+            } catch (\Throwable $e) {
+                \Log::error('sendConfirmation:email_failed', [
+                    'appointment' => $appointment->id,
+                    'error'       => $e->getMessage(),
+                ]);
+                $failed[] = 'correo';
+            }
         }
 
-        // WhatsApp confirmation
+        // WhatsApp confirmation — independent of email
         if ($appointment->patient->phone) {
-            $appointment->patient->notify(new AppointmentConfirmationWhatsApp($appointment));
-            $messages[] = 'WhatsApp a ' . $appointment->patient->phone;
+            try {
+                $appointment->patient->notify(new AppointmentConfirmationWhatsApp($appointment));
+                $sent[] = 'WhatsApp';
+            } catch (\Throwable $e) {
+                \Log::error('sendConfirmation:whatsapp_failed', [
+                    'appointment' => $appointment->id,
+                    'error'       => $e->getMessage(),
+                ]);
+                $failed[] = 'WhatsApp';
+            }
         }
 
-        $sent = implode(' y ', $messages);
-        return back()->with('success', "Confirmación enviada por {$sent}.");
+        if (empty($sent) && ! empty($failed)) {
+            return back()->with('error', 'No se pudo enviar la confirmación por ' . implode(' ni ', $failed) . '.');
+        }
+
+        $msg = 'Confirmación enviada por ' . implode(' y ', $sent) . '.';
+        if (! empty($failed)) {
+            $msg .= ' (Falló: ' . implode(', ', $failed) . ')';
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function confirm(string $token)
