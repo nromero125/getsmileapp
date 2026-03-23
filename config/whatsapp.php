@@ -24,15 +24,15 @@ return [
     'templates' => [
         'appointment_confirmation' => [
             'name'     => env('WA_TEMPLATE_CONFIRMATION', 'appointment_confirmation'),
-            'language' => 'es',
+            'language' => env('WA_TEMPLATE_LANGUAGE_CONFIRMATION', 'es'),
         ],
         'appointment_reminder' => [
             'name'     => env('WA_TEMPLATE_REMINDER', 'appointment_reminder'),
-            'language' => 'es',
+            'language' => env('WA_TEMPLATE_LANGUAGE_REMINDER', 'es'),
         ],
         'invoice_ready' => [
             'name'     => env('WA_TEMPLATE_INVOICE', 'invoice_ready'),
-            'language' => 'es',
+            'language' => env('WA_TEMPLATE_LANGUAGE_INVOICE', 'es'),
         ],
     ],
 ];
