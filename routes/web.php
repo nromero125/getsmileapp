@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DiagnosisCatalogController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
 use App\Http\Controllers\Appointment\AppointmentController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\WhatsApp\WhatsAppInboxController;
 use App\Http\Controllers\Appointment\DentalRecordController;
 use App\Http\Controllers\Appointment\DiagnosisController;
@@ -55,6 +56,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Reports
         Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+
+        // Import (admin only)
+        Route::middleware('can:admin')->group(function () {
+            Route::get('/import',          [ImportController::class, 'index'])->name('import.index');
+            Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
+            Route::post('/import/run',     [ImportController::class, 'run'])->name('import.run');
+            Route::get('/import/template', [ImportController::class, 'downloadTemplate'])->name('import.template');
+        });
 
         // DGII 607 export
         Route::get('/dgii/607', [Dgii607Controller::class, 'index'])->name('dgii.607');

@@ -5,7 +5,7 @@ import {
   HomeIcon, UsersIcon, CalendarIcon, CreditCardIcon,
   CogIcon, UserGroupIcon, Bars3Icon, SunIcon, MoonIcon,
   ChevronDownIcon, UserCircleIcon, ArrowRightOnRectangleIcon, BeakerIcon, ArchiveBoxIcon,
-  ClipboardDocumentListIcon, ChartBarIcon, ChatBubbleLeftRightIcon
+  ClipboardDocumentListIcon, ChartBarIcon, ChatBubbleLeftRightIcon, ArrowUpTrayIcon
 } from '@heroicons/vue/24/outline'
 
 const page = usePage()
@@ -32,9 +32,10 @@ const navigation = [
   { name: 'Inventario',   href: route('inventory.index'),       icon: ArchiveBoxIcon },
   { name: 'Reportes',     href: route('reports.index'),         icon: ChartBarIcon },
   { name: 'WhatsApp',    href: route('whatsapp.inbox'),        icon: ChatBubbleLeftRightIcon, waOnly: true },
-  { name: 'Tratamientos', href: route('treatments.index'),       icon: BeakerIcon,                adminOnly: true },
+  { name: 'Tratamientos', href: route('treatments.index'),        icon: BeakerIcon,                adminOnly: true },
   { name: 'Diagnósticos', href: route('diagnosis-catalog.index'), icon: ClipboardDocumentListIcon, adminOnly: true },
-  { name: 'Personal',    href: route('staff.index'),             icon: UserGroupIcon,             adminOnly: true },
+  { name: 'Personal',     href: route('staff.index'),             icon: UserGroupIcon,             adminOnly: true },
+  { name: 'Importar',     href: route('import.index'),            icon: ArrowUpTrayIcon,           adminOnly: true },
 ]
 
 // Close user menu when clicking outside
