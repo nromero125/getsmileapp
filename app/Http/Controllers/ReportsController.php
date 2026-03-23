@@ -27,10 +27,9 @@ class ReportsController extends Controller
             ->where('status', '!=', 'cancelled')
             ->sum('total');
 
-        $collected = (float) Invoice::where('clinic_id', $clinicId)
-            ->whereBetween('invoice_date', [$start, $end])
-            ->where('status', '!=', 'cancelled')
-            ->sum('amount_paid');
+        $collected = (float) Payment::where('clinic_id', $clinicId)
+            ->whereBetween('payment_date', [$start, $end])
+            ->sum('amount'); // refunds are stored as negative, so they net out automatically
 
         $pending = (float) Invoice::where('clinic_id', $clinicId)
             ->whereIn('status', ['pending', 'partial'])
@@ -44,10 +43,9 @@ class ReportsController extends Controller
         $avgTicket = $invoiceCount > 0 ? round($invoiced / $invoiceCount, 2) : 0;
 
         // Previous period revenue (for comparison)
-        $prevCollected = (float) Invoice::where('clinic_id', $clinicId)
-            ->whereBetween('invoice_date', [$prevStart, $prevEnd])
-            ->where('status', '!=', 'cancelled')
-            ->sum('amount_paid');
+        $prevCollected = (float) Payment::where('clinic_id', $clinicId)
+            ->whereBetween('payment_date', [$prevStart, $prevEnd])
+            ->sum('amount');
 
         $revenueChange = $prevCollected > 0
             ? round((($collected - $prevCollected) / $prevCollected) * 100, 1)
@@ -195,10 +193,9 @@ class ReportsController extends Controller
 
             $months[] = [
                 'month'        => $cursor->isoFormat('MMM YY'),
-                'revenue'      => (float) Invoice::where('clinic_id', $clinicId)
-                    ->whereBetween('invoice_date', [$mStart, $mEnd])
-                    ->where('status', '!=', 'cancelled')
-                    ->sum('amount_paid'),
+                'revenue'      => (float) Payment::where('clinic_id', $clinicId)
+                    ->whereBetween('payment_date', [$mStart, $mEnd])
+                    ->sum('amount'),
                 'appointments' => Appointment::where('clinic_id', $clinicId)
                     ->whereBetween('appointment_date', [$mStart, $mEnd])
                     ->count(),
