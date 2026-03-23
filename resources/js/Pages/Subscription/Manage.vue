@@ -134,9 +134,13 @@ const activatePlan = (plan) => {
             <span>{{ extraSeats }} usuario{{ extraSeats > 1 ? 's' : '' }} adicional{{ extraSeats > 1 ? 'es' : '' }}</span>
             <span class="font-semibold text-navy-900 dark:text-white">${{ extraSeats * 3 }}/mes</span>
           </div>
+          <div v-if="waPlan" class="flex justify-between py-1">
+            <span>WhatsApp {{ waPlans[waPlan]?.label }} ({{ waPlans[waPlan]?.msgs?.toLocaleString('es-DO') }} msgs)</span>
+            <span class="font-semibold text-navy-900 dark:text-white">${{ waPlans[waPlan]?.price }}/mes</span>
+          </div>
           <div class="flex justify-between py-1 pt-2 border-t border-navy-100 dark:border-navy-700 font-semibold text-navy-900 dark:text-white">
             <span>Total estimado</span>
-            <span>${{ 25 + extraSeats * 3 }}/mes</span>
+            <span>${{ 25 + extraSeats * 3 + (waPlans[waPlan]?.price ?? 0) }}/mes</span>
           </div>
         </div>
       </div>
