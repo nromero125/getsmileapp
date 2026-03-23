@@ -41,6 +41,7 @@ onMounted(async () => {
   calendarInstance = new Calendar(calendar.value, {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
     initialView: 'timeGridWeek',
+    timeZone: 'local',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',

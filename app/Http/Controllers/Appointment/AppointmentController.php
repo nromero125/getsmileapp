@@ -32,8 +32,8 @@ class AppointmentController extends Controller
             ->map(fn($appt) => [
                 'id'            => $appt->id,
                 'title'         => $appt->patient->full_name,
-                'start'         => $appt->appointment_date->toIso8601String(),
-                'end'           => $appt->end_time->toIso8601String(),
+                'start'         => $appt->appointment_date->format('Y-m-d\TH:i:s'),
+                'end'           => $appt->end_time->format('Y-m-d\TH:i:s'),
                 'color'         => $appt->status_color,
                 'extendedProps' => [
                     'patient'  => $appt->patient->full_name,
@@ -164,8 +164,8 @@ class AppointmentController extends Controller
             ->map(fn($appt) => [
                 'id'    => $appt->id,
                 'title' => $appt->patient->full_name,
-                'start' => $appt->appointment_date->toIso8601String(),
-                'end'   => $appt->end_time->toIso8601String(),
+                'start' => $appt->appointment_date->format('Y-m-d\TH:i:s'),
+                'end'   => $appt->end_time->format('Y-m-d\TH:i:s'),
                 'color' => $appt->status_color,
                 'extendedProps' => [
                     'patient'              => $appt->patient->full_name,
