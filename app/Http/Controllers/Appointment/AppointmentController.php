@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Patient;
 use App\Models\Treatment;
 use App\Models\User;
+use App\Notifications\AppointmentConfirmationWhatsApp;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -187,8 +188,8 @@ class AppointmentController extends Controller
     {
         $this->authorizeClinic($appointment);
 
-        if (! $appointment->patient->email) {
-            return back()->with('error', 'El paciente no tiene correo electrónico registrado.');
+        if (! $appointment->patient->email && ! $appointment->patient->phone) {
+            return back()->with('error', 'El paciente no tiene correo ni teléfono registrado.');
         }
 
         if (in_array($appointment->status, ['completed', 'cancelled', 'no_show'])) {
@@ -202,10 +203,23 @@ class AppointmentController extends Controller
 
         $appointment->load(['patient', 'dentist', 'clinic']);
 
-        Mail::to($appointment->patient->email)
-            ->send(new AppointmentConfirmationMail($appointment));
+        $messages = [];
 
-        return back()->with('success', 'Correo de confirmación enviado a ' . $appointment->patient->email . '.');
+        // Email confirmation
+        if ($appointment->patient->email) {
+            Mail::to($appointment->patient->email)
+                ->send(new AppointmentConfirmationMail($appointment));
+            $messages[] = 'correo a ' . $appointment->patient->email;
+        }
+
+        // WhatsApp confirmation
+        if ($appointment->patient->phone) {
+            $appointment->patient->notify(new AppointmentConfirmationWhatsApp($appointment));
+            $messages[] = 'WhatsApp a ' . $appointment->patient->phone;
+        }
+
+        $sent = implode(' y ', $messages);
+        return back()->with('success', "Confirmación enviada por {$sent}.");
     }
 
     public function confirm(string $token)

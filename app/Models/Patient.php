@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use App\Services\WhatsAppService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Patient extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, Notifiable, SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'clinic_id', 'first_name', 'last_name', 'client_document', 'email', 'phone', 'phone_alt',
@@ -78,5 +80,16 @@ class Patient extends Model implements HasMedia
             return asset('storage/' . $this->avatar_path);
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&background=0F1F3D&color=00BFA6';
+    }
+
+    /**
+     * Route WhatsApp notifications to the patient's phone number (normalized).
+     * Returns null if no phone → notification is silently skipped.
+     */
+    public function routeNotificationForWhatsapp(): ?string
+    {
+        if (! $this->phone) return null;
+
+        return app(WhatsAppService::class)->normalizePhone($this->phone);
     }
 }

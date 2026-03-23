@@ -6,3 +6,11 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+use Illuminate\Support\Facades\Schedule;
+
+// Send WhatsApp reminders every hour for appointments in the next 24 hours
+Schedule::command('appointments:send-reminders --hours=24')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground();

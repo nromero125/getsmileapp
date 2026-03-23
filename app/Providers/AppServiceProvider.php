@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Notifications\Channels\WhatsAppChannel;
+use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -23,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Register WhatsApp notification channel
+        app(ChannelManager::class)->extend('whatsapp', fn($app) =>
+            $app->make(WhatsAppChannel::class)
+        );
 
         if (app()->isProduction()) {
             URL::forceScheme('https');

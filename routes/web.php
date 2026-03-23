@@ -27,6 +27,10 @@ require __DIR__.'/auth.php';
 // Paddle webhook (must be before auth middleware)
 Route::post('/paddle/webhook', '\Laravel\Paddle\Http\Controllers\WebhookController')->name('cashier.webhook');
 
+// WhatsApp webhook — Meta verification (GET) + incoming events (POST), no auth/CSRF
+Route::get('/whatsapp/webhook',  [\App\Http\Controllers\WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
+Route::post('/whatsapp/webhook', [\App\Http\Controllers\WhatsAppWebhookController::class, 'handle'])->name('whatsapp.webhook.handle');
+
 // Authenticated routes
 Route::middleware(['auth', 'verified'])->group(function () {
 

@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'paddle/webhook',
+            'whatsapp/webhook',
         ]);
 
         $middleware->alias([
