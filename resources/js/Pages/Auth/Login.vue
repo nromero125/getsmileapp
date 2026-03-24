@@ -107,14 +107,6 @@ const submit = () => form.post(route('login'))
             Registrar mi clínica gratis
           </Link>
 
-          <div class="mt-5 p-4 bg-navy-50 rounded-2xl text-xs text-navy-500">
-            <p class="font-semibold text-navy-700 mb-2">Credenciales de prueba</p>
-            <div class="space-y-1">
-              <p>Admin: <span class="font-mono text-teal-600">admin@dentaris.app</span></p>
-              <p>Dentista: <span class="font-mono text-teal-600">james@dentaris.app</span></p>
-              <p>Contraseña: <span class="font-mono text-teal-600">password</span></p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
