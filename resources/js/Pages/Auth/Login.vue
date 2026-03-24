@@ -21,7 +21,7 @@ const submit = () => form.post(route('login'))
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
             </svg>
           </div>
-          <span class="font-display text-white font-semibold text-xl">Dentaris</span>
+          <span class="font-display text-white font-semibold text-xl">Dentarix</span>
         </div>
         <h1 class="font-display text-5xl font-bold text-white leading-tight mb-4">
           Gestión dental<br/>de primer<br/>nivel
@@ -41,7 +41,7 @@ const submit = () => form.post(route('login'))
 
         <!-- CTA registro en panel izquierdo -->
         <div class="pt-6 border-t border-white/10 mt-6">
-          <p class="text-navy-400 text-sm mb-3">¿Tu clínica aún no está en Dentaris?</p>
+          <p class="text-navy-400 text-sm mb-3">¿Tu clínica aún no está en Dentarix?</p>
           <Link :href="route('register')"
             class="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg">
             Registrar mi clínica
@@ -61,7 +61,7 @@ const submit = () => form.post(route('login'))
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
             </svg>
           </div>
-          <span class="font-display text-white font-semibold text-lg">Dentaris</span>
+          <span class="font-display text-white font-semibold text-lg">Dentarix</span>
         </div>
 
         <div class="auth-card bg-white rounded-3xl p-8 shadow-card-lg">
@@ -98,7 +98,7 @@ const submit = () => form.post(route('login'))
           <!-- Divider -->
           <div class="flex items-center gap-3 my-5">
             <div class="flex-1 h-px bg-navy-100" />
-            <span class="text-xs text-navy-400">¿nuevo en Dentaris?</span>
+            <span class="text-xs text-navy-400">¿nuevo en Dentarix?</span>
             <div class="flex-1 h-px bg-navy-100" />
           </div>
 

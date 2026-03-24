@@ -38,7 +38,7 @@
       <!-- Plan summary -->
       <div class="rounded-xl border p-4 mb-6" style="border-color:#E2E8F0; background:#F8FAFC">
         <div class="flex justify-between items-center mb-3">
-          <span class="font-semibold text-sm" style="color:#0F1F3D">Plan Dentaris</span>
+          <span class="font-semibold text-sm" style="color:#0F1F3D">Plan Dentarix</span>
           <span class="font-bold" style="color:#0F1F3D">$25<span class="text-xs font-normal" style="color:#64748b">/mes</span></span>
         </div>
         <ul class="space-y-1.5">

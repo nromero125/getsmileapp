@@ -38,7 +38,7 @@
         <path d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z"/>
       </svg>
     </div>
-    <span class="logo-name">Dentaris</span>
+    <span class="logo-name">Dentarix</span>
   </div>
 
   <div class="body">
@@ -103,7 +103,7 @@
 
   <div class="footer">
     <p>
-      Este correo fue enviado por <strong style="color:#8fa3bf">{{ $appointment->clinic->name }}</strong> a través de Dentaris.<br/>
+      Este correo fue enviado por <strong style="color:#8fa3bf">{{ $appointment->clinic->name }}</strong> a través de Dentarix.<br/>
       Si no esperabas este mensaje, puedes ignorarlo.
     </p>
   </div>

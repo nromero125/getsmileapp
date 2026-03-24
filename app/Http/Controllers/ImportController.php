@@ -115,7 +115,7 @@ class ImportController extends Controller
     public function downloadTemplate(Request $request)
     {
         $withData = $request->boolean('sample');
-        $filename = $withData ? 'dentaris_datos_de_ejemplo.xlsx' : 'dentaris_plantilla_importacion.xlsx';
+        $filename = $withData ? 'dentarix_datos_de_ejemplo.xlsx' : 'dentarix_plantilla_importacion.xlsx';
 
         return Excel::download(new ImportTemplateExport($withData), $filename);
     }

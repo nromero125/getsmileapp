@@ -103,7 +103,7 @@ const activatePlan = (plan) => {
 
       <!-- Plan details -->
       <div class="card p-6">
-        <h2 class="font-semibold text-navy-900 dark:text-white mb-4">Plan Dentaris</h2>
+        <h2 class="font-semibold text-navy-900 dark:text-white mb-4">Plan Dentarix</h2>
         <div class="grid grid-cols-3 gap-4 text-center">
           <div class="rounded-xl bg-navy-50 dark:bg-navy-800 p-4">
             <p class="text-2xl font-bold text-navy-900 dark:text-white">{{ activeUsers }}</p>

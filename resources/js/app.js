@@ -15,7 +15,7 @@ Alpine.plugin(persist);
 window.Alpine = Alpine;
 Alpine.start();
 
-const appName = import.meta.env.VITE_APP_NAME || 'Dentaris';
+const appName = import.meta.env.VITE_APP_NAME || 'Dentarix';
 
 createInertiaApp({
     title: (title) => title ? `${title} — ${appName}` : appName,

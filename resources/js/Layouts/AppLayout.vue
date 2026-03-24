@@ -80,7 +80,7 @@ const subscription = computed(() => page.props.subscription || {})
           </div>
           <Transition enter-active-class="transition-all duration-200" leave-active-class="transition-all duration-200"
             enter-from-class="opacity-0 w-0" leave-to-class="opacity-0 w-0">
-            <span v-if="sidebarOpen" class="font-display text-white font-semibold text-lg tracking-tight truncate">Dentaris</span>
+            <span v-if="sidebarOpen" class="font-display text-white font-semibold text-lg tracking-tight truncate">Dentarix</span>
           </Transition>
         </Link>
         <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:flex p-1 rounded-lg text-navy-400 hover:text-white hover:bg-white/10 transition-colors">

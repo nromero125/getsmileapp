@@ -79,7 +79,7 @@ const testimonials = [
   {
     name: 'Dr. Ricardo Méndez',
     role: 'Director, Clínica Dental Méndez',
-    text: 'Dentaris transformó cómo gestionamos nuestra clínica. Antes usábamos hojas de cálculo y ahora todo está centralizado. El odontograma digital fue un cambio de juego para nuestro equipo clínico.',
+    text: 'Dentarix transformó cómo gestionamos nuestra clínica. Antes usábamos hojas de cálculo y ahora todo está centralizado. El odontograma digital fue un cambio de juego para nuestro equipo clínico.',
     avatar: 'RM',
   },
   {
@@ -91,7 +91,7 @@ const testimonials = [
   {
     name: 'Dra. Patricia Solano',
     role: 'Propietaria, SmilePro Dental',
-    text: 'Probé varios sistemas antes de Dentaris. La diferencia es la velocidad y la simplicidad. Mi recepcionista aprendió a usarlo en un día. La confirmación automática de citas redujo los no-shows un 40%.',
+    text: 'Probé varios sistemas antes de Dentarix. La diferencia es la velocidad y la simplicidad. Mi recepcionista aprendió a usarlo en un día. La confirmación automática de citas redujo los no-shows un 40%.',
     avatar: 'PS',
   },
 ]
@@ -524,7 +524,7 @@ const stats = [
         <div class="text-center mb-14">
           <p class="text-sm font-semibold uppercase tracking-widest mb-3" style="color:#00BFA6">Testimonios</p>
           <h2 class="text-4xl font-extrabold" style="color:#0F1F3D">
-            Clínicas que confían en <span style="color:#00BFA6">Dentaris</span>
+            Clínicas que confían en <span style="color:#00BFA6">Dentarix</span>
           </h2>
         </div>
 
@@ -564,7 +564,7 @@ const stats = [
           <span style="color:#00BFA6">un software a su altura</span>
         </h2>
         <p class="text-lg mb-10 max-w-xl mx-auto" style="color:#94a3b8">
-          Únete a más de 500 clínicas dentales que ya gestionan su práctica con Dentaris. Pruébalo gratis por 14 días.
+          Únete a más de 500 clínicas dentales que ya gestionan su práctica con Dentarix. Pruébalo gratis por 14 días.
         </p>
         <div class="flex flex-wrap gap-4 justify-center">
           <Link :href="route('register')"
@@ -632,7 +632,7 @@ const stats = [
 
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs pt-6"
           style="border-top:1px solid rgba(255,255,255,0.06); color:#334155">
-          <p>© 2025 Dentaris. Todos los derechos reservados.</p>
+          <p>© 2026 Dentarix. Todos los derechos reservados.</p>
           <div class="flex gap-4">
             <a href="#" class="hover:text-teal-400 transition-colors">Términos de servicio</a>
             <a href="#" class="hover:text-teal-400 transition-colors">Política de privacidad</a>

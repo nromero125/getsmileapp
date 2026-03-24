@@ -25,13 +25,13 @@
 
       <h1 class="text-2xl font-bold mb-3" style="color:#0F1F3D">Período de prueba finalizado</h1>
       <p class="text-sm mb-8" style="color:#64748b">
-        Tu período de prueba gratuita ha terminado. Activa tu suscripción para continuar usando Dentaris.
+        Tu período de prueba gratuita ha terminado. Activa tu suscripción para continuar usando Dentarix.
       </p>
 
       <!-- Price reminder -->
       <div class="rounded-xl border p-4 mb-6 text-left" style="border-color:#E2E8F0; background:#F8FAFC">
         <div class="flex justify-between items-center mb-2">
-          <span class="font-semibold text-sm" style="color:#0F1F3D">Plan Dentaris</span>
+          <span class="font-semibold text-sm" style="color:#0F1F3D">Plan Dentarix</span>
           <span class="font-bold" style="color:#0F1F3D">$25<span class="text-xs font-normal" style="color:#64748b">/mes</span></span>
         </div>
         <p class="text-xs" style="color:#64748b">3 usuarios incluidos · +$3/usuario adicional · Sin límite de pacientes</p>

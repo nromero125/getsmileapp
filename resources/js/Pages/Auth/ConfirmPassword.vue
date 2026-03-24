@@ -18,7 +18,7 @@ const submit = () => form.post(route('password.confirm'), {
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9 3 6.5 5 5.5 8C4.5 11 5 14 5.5 17C6 19.5 7 22 9.5 22.5C12 23 12 20 12 20C12 20 12 23 14.5 22.5C17 22 18 19.5 18.5 17C19 14 19.5 11 18.5 8C17.5 5 15 3 12 3Z" />
           </svg>
         </div>
-        <span class="font-display text-white font-semibold text-xl">Dentaris</span>
+        <span class="font-display text-white font-semibold text-xl">Dentarix</span>
       </div>
 
       <div class="auth-card bg-white rounded-3xl p-8 shadow-card-lg">
