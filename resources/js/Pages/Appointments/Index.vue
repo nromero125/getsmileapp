@@ -17,6 +17,7 @@ const calendar = ref(null)
 const showNewModal = ref(false)
 const selectedEvent = ref(null)
 const showEventModal = ref(false)
+const editMode = ref(false)
 
 const form = useForm({
   patient_id: '',
@@ -26,6 +27,16 @@ const form = useForm({
   reason: '',
   notes: '',
   status: 'scheduled',
+  treatment_ids: [],
+})
+
+const editForm = useForm({
+  patient_id: '',
+  dentist_id: '',
+  appointment_date: '',
+  duration_minutes: 30,
+  reason: '',
+  notes: '',
   treatment_ids: [],
 })
 
@@ -74,6 +85,7 @@ onMounted(async () => {
         end: info.event.end,
         ...info.event.extendedProps,
       }
+      editMode.value = false
       showEventModal.value = true
     },
     dateClick: (info) => {
@@ -124,6 +136,27 @@ const sendConfirmation = (id) => {
       showEventModal.value = false
       calendarInstance?.refetchEvents()
     }
+  })
+}
+
+const openEditMode = () => {
+  editForm.patient_id       = selectedEvent.value.patient_id
+  editForm.dentist_id       = selectedEvent.value.dentist_id
+  editForm.appointment_date = selectedEvent.value.appointment_date_str
+  editForm.duration_minutes = selectedEvent.value.duration
+  editForm.reason           = selectedEvent.value.reason ?? ''
+  editForm.notes            = selectedEvent.value.notes ?? ''
+  editForm.treatment_ids    = [...(selectedEvent.value.treatment_ids ?? [])]
+  editMode.value = true
+}
+
+const saveEdit = () => {
+  editForm.put(route('appointments.update', selectedEvent.value.id), {
+    onSuccess: () => {
+      editMode.value = false
+      showEventModal.value = false
+      calendarInstance?.refetchEvents()
+    },
   })
 }
 
@@ -229,58 +262,122 @@ const getTreatmentDuration = () => {
     </Modal>
 
     <!-- Event Detail Modal -->
-    <Modal :show="showEventModal" :title="selectedEvent?.patient || 'Cita'" size="md" @close="showEventModal = false">
-      <div v-if="selectedEvent" class="space-y-4">
-        <div class="grid grid-cols-2 gap-3 text-sm">
-          <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Paciente</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.patient }}</p></div>
-          <div>
-            <p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Dentista</p>
-            <p class="font-semibold text-navy-900 dark:text-white flex items-center gap-2">
-              {{ selectedEvent.dentist }}
-              <span v-if="selectedEvent.dentist_inactive" class="text-xs font-normal text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Inactivo</span>
-            </p>
-          </div>
-          <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Fecha</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.start?.toLocaleDateString('es-MX', { weekday:'short', month:'short', day:'numeric' }) }}</p></div>
-          <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Hora</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.start?.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' }) }}</p></div>
-          <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Estado</p><StatusBadge :status="selectedEvent.status" /></div>
-          <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Duración</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.duration }} min</p></div>
-          <div v-if="selectedEvent.reason" class="col-span-2"><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Motivo</p><p class="text-navy-700 dark:text-navy-300">{{ selectedEvent.reason }}</p></div>
-        </div>
+    <Modal :show="showEventModal" :title="editMode ? 'Editar Cita' : (selectedEvent?.patient || 'Cita')" size="lg" @close="showEventModal = false; editMode = false">
+      <div v-if="selectedEvent">
 
-        <!-- Confirmation email -->
-        <div v-if="!['completed','cancelled','no_show','confirmed'].includes(selectedEvent.status)"
-          class="border-t border-navy-100 dark:border-navy-800 pt-3">
-          <p class="text-xs text-navy-400 uppercase tracking-wide mb-2">Confirmación por correo</p>
-          <div v-if="selectedEvent.patient_email" class="flex items-center justify-between gap-3">
+        <!-- ── View mode ── -->
+        <div v-if="!editMode" class="space-y-4">
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Paciente</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.patient }}</p></div>
             <div>
-              <p class="text-sm text-navy-700 dark:text-navy-300 truncate">{{ selectedEvent.patient_email }}</p>
-              <p v-if="selectedEvent.confirmation_sent_at" class="text-xs text-navy-400 mt-0.5">
-                Enviado {{ new Date(selectedEvent.confirmation_sent_at).toLocaleDateString('es-MX', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) }}
+              <p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Dentista</p>
+              <p class="font-semibold text-navy-900 dark:text-white flex items-center gap-2">
+                {{ selectedEvent.dentist }}
+                <span v-if="selectedEvent.dentist_inactive" class="text-xs font-normal text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Inactivo</span>
               </p>
             </div>
-            <button @click="sendConfirmation(selectedEvent.id)" :disabled="sendingConfirmation"
-              class="btn-outline flex-shrink-0 text-xs gap-1.5 disabled:opacity-50">
-              <EnvelopeIcon class="w-3.5 h-3.5" />
-              {{ selectedEvent.confirmation_sent_at ? 'Reenviar' : 'Enviar' }}
-            </button>
+            <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Fecha</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.start?.toLocaleDateString('es-MX', { weekday:'short', month:'short', day:'numeric' }) }}</p></div>
+            <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Hora</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.start?.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' }) }}</p></div>
+            <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Estado</p><StatusBadge :status="selectedEvent.status" /></div>
+            <div><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Duración</p><p class="font-semibold text-navy-900 dark:text-white">{{ selectedEvent.duration }} min</p></div>
+            <div v-if="selectedEvent.reason" class="col-span-2"><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Motivo</p><p class="text-navy-700 dark:text-navy-300">{{ selectedEvent.reason }}</p></div>
+            <div v-if="selectedEvent.notes" class="col-span-2"><p class="text-navy-400 text-xs uppercase tracking-wide mb-1">Notas</p><p class="text-navy-700 dark:text-navy-300">{{ selectedEvent.notes }}</p></div>
           </div>
-          <p v-else class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg">
-            El paciente no tiene correo electrónico registrado.
-          </p>
+
+          <!-- Confirmation -->
+          <div v-if="!['completed','cancelled','no_show','confirmed'].includes(selectedEvent.status)"
+            class="border-t border-navy-100 dark:border-navy-800 pt-3">
+            <p class="text-xs text-navy-400 uppercase tracking-wide mb-2">Confirmación</p>
+            <div v-if="selectedEvent.patient_email" class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm text-navy-700 dark:text-navy-300 truncate">{{ selectedEvent.patient_email }}</p>
+                <p v-if="selectedEvent.confirmation_sent_at" class="text-xs text-navy-400 mt-0.5">
+                  Enviado {{ new Date(selectedEvent.confirmation_sent_at).toLocaleDateString('es-MX', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) }}
+                </p>
+              </div>
+              <button @click="sendConfirmation(selectedEvent.id)" :disabled="sendingConfirmation"
+                class="btn-outline flex-shrink-0 text-xs gap-1.5 disabled:opacity-50">
+                <EnvelopeIcon class="w-3.5 h-3.5" />
+                {{ selectedEvent.confirmation_sent_at ? 'Reenviar' : 'Enviar' }}
+              </button>
+            </div>
+            <p v-else class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg">
+              El paciente no tiene correo electrónico registrado.
+            </p>
+          </div>
+
+          <!-- Status Actions -->
+          <div class="border-t border-navy-100 dark:border-navy-800 pt-3">
+            <p class="text-xs text-navy-400 uppercase tracking-wide mb-2">Actualizar Estado</p>
+            <div class="flex flex-wrap gap-2">
+              <button v-for="(label, s) in { confirmed: 'Confirmada', in_progress: 'En curso', completed: 'Completada', cancelled: 'Cancelada', no_show: 'No se presentó' }" :key="s"
+                @click="updateStatus(selectedEvent.id, s)"
+                :disabled="selectedEvent.status === s"
+                class="btn-outline text-xs py-1 disabled:opacity-40">
+                {{ label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Edit button -->
+          <div v-if="!['completed','cancelled','no_show'].includes(selectedEvent.status)"
+            class="border-t border-navy-100 dark:border-navy-800 pt-3 flex justify-end">
+            <button @click="openEditMode" class="btn-outline text-sm">Editar cita</button>
+          </div>
         </div>
 
-        <!-- Status Actions -->
-        <div class="border-t border-navy-100 dark:border-navy-800 pt-3">
-          <p class="text-xs text-navy-400 uppercase tracking-wide mb-2">Actualizar Estado</p>
-          <div class="flex flex-wrap gap-2">
-            <button v-for="(label, s) in { confirmed: 'Confirmada', in_progress: 'En curso', completed: 'Completada', cancelled: 'Cancelada', no_show: 'No se presentó' }" :key="s"
-              @click="updateStatus(selectedEvent.id, s)"
-              :disabled="selectedEvent.status === s"
-              class="btn-outline text-xs py-1 disabled:opacity-40">
-              {{ label }}
+        <!-- ── Edit mode ── -->
+        <form v-else @submit.prevent="saveEdit" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Paciente *</label>
+              <select v-model="editForm.patient_id" class="input" required>
+                <option v-for="p in patients" :key="p.id" :value="p.id">{{ p.first_name }} {{ p.last_name }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Dentista *</label>
+              <select v-model="editForm.dentist_id" class="input" required>
+                <option v-for="d in dentists.filter(d => d.is_active)" :key="d.id" :value="d.id">{{ d.name }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Fecha y hora *</label>
+              <input v-model="editForm.appointment_date" type="datetime-local" class="input" required />
+              <p v-if="editForm.errors.appointment_date" class="text-xs text-red-500 mt-1">{{ editForm.errors.appointment_date }}</p>
+            </div>
+            <div>
+              <label class="label">Duración (minutos)</label>
+              <input v-model="editForm.duration_minutes" type="number" min="15" step="15" class="input" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="label">Motivo</label>
+              <input v-model="editForm.reason" type="text" class="input" placeholder="Limpieza, revisión…" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="label">Tratamientos</label>
+              <div class="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-2 border border-navy-200 rounded-xl">
+                <label v-for="t in treatments" :key="t.id"
+                  class="flex items-center gap-2 p-2 rounded-lg hover:bg-navy-50 cursor-pointer">
+                  <input type="checkbox" :value="t.id" v-model="editForm.treatment_ids"
+                    class="rounded text-teal-500 focus:ring-teal-500" />
+                  <span class="text-sm text-navy-700 dark:text-navy-300">{{ t.name }}</span>
+                </label>
+              </div>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="label">Notas</label>
+              <textarea v-model="editForm.notes" rows="2" class="input" placeholder="Notas adicionales…" />
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" @click="editMode = false" class="btn-outline">Cancelar</button>
+            <button type="submit" class="btn-primary" :disabled="editForm.processing">
+              {{ editForm.processing ? 'Guardando…' : 'Guardar cambios' }}
             </button>
           </div>
-        </div>
+        </form>
+
       </div>
     </Modal>
   </AppLayout>

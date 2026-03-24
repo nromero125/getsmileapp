@@ -159,7 +159,7 @@ class AppointmentController extends Controller
 
         $appointments = Appointment::where('clinic_id', $clinicId)
             ->whereBetween('appointment_date', [$start, $end])
-            ->with(['patient', 'dentist'])
+            ->with(['patient', 'dentist', 'treatments'])
             ->get()
             ->map(fn($appt) => [
                 'id'    => $appt->id,
@@ -176,8 +176,11 @@ class AppointmentController extends Controller
                     'dentist_inactive'     => ! $appt->dentist->is_active,
                     'status'               => $appt->status,
                     'reason'               => $appt->reason,
+                    'notes'                => $appt->notes,
                     'duration'             => $appt->duration_minutes,
+                    'treatment_ids'        => $appt->treatments->pluck('id')->toArray(),
                     'confirmation_sent_at' => $appt->confirmation_sent_at?->toIso8601String(),
+                    'appointment_date_str' => $appt->appointment_date->format('Y-m-d\TH:i'),
                 ],
             ]);
 
