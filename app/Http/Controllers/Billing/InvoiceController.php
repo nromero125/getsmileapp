@@ -145,6 +145,16 @@ class InvoiceController extends Controller
             ]);
         }
 
+        // Notify patient via WhatsApp when invoice is generated
+        try {
+            $invoice->load(['patient', 'clinic']);
+            if ($invoice->patient?->phone) {
+                $invoice->patient->notify(new \App\Notifications\InvoiceReadyWhatsApp($invoice));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('InvoiceWhatsApp:failed', ['error' => $e->getMessage()]);
+        }
+
         return redirect()->route('invoices.show', $invoice)
             ->with('success', 'Invoice created successfully.');
     }
@@ -311,7 +321,7 @@ class InvoiceController extends Controller
             'status'      => $status,
         ]);
 
-        return back()->with('success', 'Payment recorded.');
+        return back()->with('success', 'Pago registrado.');
     }
 
     public function pdf(Invoice $invoice)
