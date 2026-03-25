@@ -497,7 +497,7 @@ const stats = [
               <div class="space-y-1.5 text-sm">
                 <div class="flex justify-between text-gray-600">
                   <span>Plan base (3 usuarios)</span>
-                  <span class="font-semibold" style="color:#0F1F3D">$20</span>
+                  <span class="font-semibold" style="color:#0F1F3D">$25</span>
                 </div>
                 <div class="flex justify-between text-gray-600">
                   <span>2 usuarios adicionales</span>
@@ -509,7 +509,7 @@ const stats = [
                 </div>
                 <div class="flex justify-between items-center pt-2 mt-1 border-t border-gray-200">
                   <span class="font-bold" style="color:#0F1F3D">Total / mes</span>
-                  <span class="text-xl font-extrabold" style="color:#00BFA6">$46</span>
+                  <span class="text-xl font-extrabold" style="color:#00BFA6">$51</span>
                 </div>
               </div>
             </div>
